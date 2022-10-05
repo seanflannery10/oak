@@ -6,8 +6,10 @@ import (
 	"io"
 	"os"
 	"runtime/debug"
+	"strconv"
 	"sync"
 	"sync/atomic"
+	"time"
 )
 
 type Logger struct {
@@ -17,14 +19,17 @@ type Logger struct {
 	mu         sync.Mutex
 }
 
-func New() (l *Logger) {
-	l = &Logger{
+var (
+	DateTime = time.Now().UTC().Format(time.RFC3339)
+	UnixTime = strconv.FormatInt(time.Now().Unix(), 10)
+)
+
+func New() *Logger {
+	return &Logger{
 		output:     os.Stdout,
 		minLevel:   uint32(LevelInfo),
 		timeFormat: DateTime,
 	}
-
-	return
 }
 
 func (l *Logger) GetLevel() Level {

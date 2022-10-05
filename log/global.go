@@ -2,16 +2,9 @@ package log
 
 import (
 	"io"
-	"strconv"
-	"time"
 )
 
-var (
-	DateTime = time.Now().UTC().Format(time.RFC3339)
-	UnixTime = strconv.FormatInt(time.Now().Unix(), 10)
-
-	GlobalLogger = New()
-)
+var GlobalLogger = New()
 
 func GetLevel() Level {
 	return GlobalLogger.GetLevel()
