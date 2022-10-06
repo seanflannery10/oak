@@ -64,3 +64,8 @@ func InvalidAuthenticationToken(w http.ResponseWriter, r *http.Request) {
 func AuthenticationRequired(w http.ResponseWriter, r *http.Request) {
 	ErrorMessage(w, r, http.StatusUnauthorized, "You must be authenticated to access this resource")
 }
+
+func RateLimitExceededResponse(w http.ResponseWriter, r *http.Request) {
+	message := "rate limit exceeded"
+	ErrorMessage(w, r, http.StatusTooManyRequests, message)
+}
