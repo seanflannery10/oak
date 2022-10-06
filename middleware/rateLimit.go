@@ -9,7 +9,13 @@ import (
 	"time"
 )
 
-func (m *Middleware) rateLimit(next http.Handler) http.Handler {
+func RateLimit(next http.HandlerFunc) http.HandlerFunc {
+	type Limiter struct {
+		enabled bool
+		rps     float64
+		burst   int
+	}
+
 	type client struct {
 		limiter  *rate.Limiter
 		lastSeen time.Time
@@ -36,7 +42,7 @@ func (m *Middleware) rateLimit(next http.Handler) http.Handler {
 		}
 	}()
 
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
 		if m.limiter.enabled {
 			ip := realip.FromRequest(r)
 
@@ -60,5 +66,5 @@ func (m *Middleware) rateLimit(next http.Handler) http.Handler {
 		}
 
 		next.ServeHTTP(w, r)
-	})
+	}
 }

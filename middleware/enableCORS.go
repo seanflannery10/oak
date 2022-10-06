@@ -2,8 +2,8 @@ package middleware
 
 import "net/http"
 
-func (m *Middleware) enableCORS(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+func EnableCORS(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Vary", "Origin")
 
 		w.Header().Add("Vary", "Access-Control-Request-Method")
@@ -29,5 +29,5 @@ func (m *Middleware) enableCORS(next http.Handler) http.Handler {
 		}
 
 		next.ServeHTTP(w, r)
-	})
+	}
 }
