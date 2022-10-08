@@ -10,16 +10,12 @@ import (
 )
 
 type ConfigRateLimit struct {
-	trustedOrigins []string
+	enabled bool
+	rps     float64
+	burst   int
 }
 
 func (c *ConfigRateLimit) RateLimit(next http.HandlerFunc) http.HandlerFunc {
-	type Limiter struct {
-		enabled bool
-		rps     float64
-		burst   int
-	}
-
 	type client struct {
 		limiter  *rate.Limiter
 		lastSeen time.Time
@@ -47,14 +43,14 @@ func (c *ConfigRateLimit) RateLimit(next http.HandlerFunc) http.HandlerFunc {
 	}()
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		if m.limiter.enabled {
+		if c.enabled {
 			ip := realip.FromRequest(r)
 
 			mu.Lock()
 
 			if _, found := clients[ip]; !found {
 				clients[ip] = &client{
-					limiter: rate.NewLimiter(rate.Limit(m.limiter.rps), m.limiter.burst),
+					limiter: rate.NewLimiter(rate.Limit(c.rps), c.burst),
 				}
 			}
 
@@ -84,5 +80,5 @@ func RateLimit(next http.HandlerFunc) http.HandlerFunc {
 }
 
 func SetRateLimitConfig(c ConfigRateLimit) {
-	GlobalConfigCORS.SetRateLimitConfig(c)
+	GlobalConfigRateLimit.SetRateLimitConfig(c)
 }
