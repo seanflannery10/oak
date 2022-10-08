@@ -14,6 +14,6 @@ func RecoverPanic(next http.HandlerFunc) http.HandlerFunc {
 			}
 		}()
 
-		next.ServeHTTP(w, r)
+		next(w, r)
 	}
 }

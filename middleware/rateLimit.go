@@ -9,7 +9,11 @@ import (
 	"time"
 )
 
-func RateLimit(next http.HandlerFunc) http.HandlerFunc {
+type ConfigRateLimit struct {
+	trustedOrigins []string
+}
+
+func (c *ConfigRateLimit) RateLimit(next http.HandlerFunc) http.HandlerFunc {
 	type Limiter struct {
 		enabled bool
 		rps     float64
@@ -65,6 +69,20 @@ func RateLimit(next http.HandlerFunc) http.HandlerFunc {
 			mu.Unlock()
 		}
 
-		next.ServeHTTP(w, r)
+		next(w, r)
 	}
+}
+
+func (c *ConfigRateLimit) SetRateLimitConfig(cfg ConfigRateLimit) {
+	*c = cfg
+}
+
+var GlobalConfigRateLimit = &ConfigRateLimit{}
+
+func RateLimit(next http.HandlerFunc) http.HandlerFunc {
+	return GlobalConfigRateLimit.RateLimit(next)
+}
+
+func SetRateLimitConfig(c ConfigRateLimit) {
+	GlobalConfigCORS.SetRateLimitConfig(c)
 }

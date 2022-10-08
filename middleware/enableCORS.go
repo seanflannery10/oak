@@ -2,7 +2,11 @@ package middleware
 
 import "net/http"
 
-func EnableCORS(next http.HandlerFunc) http.HandlerFunc {
+type ConfigCORS struct {
+	trustedOrigins []string
+}
+
+func (c *ConfigCORS) CORS(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Vary", "Origin")
 
@@ -11,8 +15,8 @@ func EnableCORS(next http.HandlerFunc) http.HandlerFunc {
 		origin := r.Header.Get("Origin")
 
 		if origin != "" {
-			for i := range m.trustedOrigins {
-				if origin == m.trustedOrigins[i] {
+			for i := range c.trustedOrigins {
+				if origin == c.trustedOrigins[i] {
 					w.Header().Set("Access-Control-Allow-Origin", origin)
 
 					if r.Method == http.MethodOptions && r.Header.Get("Access-Control-Request-Method") != "" {
@@ -28,6 +32,20 @@ func EnableCORS(next http.HandlerFunc) http.HandlerFunc {
 			}
 		}
 
-		next.ServeHTTP(w, r)
+		next(w, r)
 	}
+}
+
+func (c *ConfigCORS) SetOrigins(o []string) {
+	c.trustedOrigins = o
+}
+
+var GlobalConfigCORS = &ConfigCORS{}
+
+func CORS(next http.HandlerFunc) http.HandlerFunc {
+	return GlobalConfigCORS.CORS(next)
+}
+
+func SetOrigins(o []string) {
+	GlobalConfigCORS.SetOrigins(o)
 }

@@ -8,7 +8,11 @@ import (
 	"time"
 )
 
-func Authenticate(next http.HandlerFunc) http.HandlerFunc {
+type ConfigAuthenticate struct {
+	jwks string
+}
+
+func (c *ConfigAuthenticate) Authenticate(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Vary", "Authorization")
 
@@ -24,7 +28,7 @@ func Authenticate(next http.HandlerFunc) http.HandlerFunc {
 			token := headerParts[1]
 
 			var keys jwt.KeyRegister
-			n, err := keys.LoadJWK([]byte(m.jwks))
+			n, err := keys.LoadJWK([]byte(c.jwks))
 			if n != 1 || err != nil {
 				errors.InvalidAuthenticationToken(w, r)
 				return
@@ -68,6 +72,20 @@ func Authenticate(next http.HandlerFunc) http.HandlerFunc {
 			//}
 		}
 
-		next.ServeHTTP(w, r)
+		next(w, r)
 	}
+}
+
+func (c *ConfigAuthenticate) SetJWKS(jwks string) {
+	c.jwks = jwks
+}
+
+var GlobalConfigAuthenticate = &ConfigAuthenticate{}
+
+func Authenticate(next http.HandlerFunc) http.HandlerFunc {
+	return GlobalConfigAuthenticate.Authenticate(next)
+}
+
+func SetJWKS(jwks string) {
+	GlobalConfigAuthenticate.SetJWKS(jwks)
 }
