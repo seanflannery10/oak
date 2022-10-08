@@ -12,6 +12,12 @@ type ConfigAuthenticate struct {
 	jwks string
 }
 
+func NewAuthenticate(jwks string) *ConfigAuthenticate {
+	return &ConfigAuthenticate{
+		jwks: jwks,
+	}
+}
+
 func (c *ConfigAuthenticate) Authenticate(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Vary", "Authorization")
@@ -74,18 +80,4 @@ func (c *ConfigAuthenticate) Authenticate(next http.HandlerFunc) http.HandlerFun
 
 		next(w, r)
 	}
-}
-
-func (c *ConfigAuthenticate) SetAuthenticate(cfg ConfigAuthenticate) {
-	*c = cfg
-}
-
-var GlobalConfigAuthenticate = &ConfigAuthenticate{}
-
-func Authenticate(next http.HandlerFunc) http.HandlerFunc {
-	return GlobalConfigAuthenticate.Authenticate(next)
-}
-
-func SetAuthenticate(cfg ConfigAuthenticate) {
-	GlobalConfigAuthenticate.SetAuthenticate(cfg)
 }

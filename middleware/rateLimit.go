@@ -15,6 +15,14 @@ type ConfigRateLimit struct {
 	burst   int
 }
 
+func NewRateLimit(enabled bool, rps float64, burst int) *ConfigRateLimit {
+	return &ConfigRateLimit{
+		enabled: enabled,
+		rps:     rps,
+		burst:   burst,
+	}
+}
+
 func (c *ConfigRateLimit) RateLimit(next http.HandlerFunc) http.HandlerFunc {
 	type client struct {
 		limiter  *rate.Limiter
@@ -67,18 +75,4 @@ func (c *ConfigRateLimit) RateLimit(next http.HandlerFunc) http.HandlerFunc {
 
 		next(w, r)
 	}
-}
-
-func (c *ConfigRateLimit) SetRateLimitConfig(cfg ConfigRateLimit) {
-	*c = cfg
-}
-
-var GlobalConfigRateLimit = &ConfigRateLimit{}
-
-func RateLimit(next http.HandlerFunc) http.HandlerFunc {
-	return GlobalConfigRateLimit.RateLimit(next)
-}
-
-func SetRateLimit(cfg ConfigRateLimit) {
-	GlobalConfigRateLimit.SetRateLimitConfig(cfg)
 }

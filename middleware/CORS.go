@@ -6,6 +6,12 @@ type ConfigCORS struct {
 	trustedOrigins []string
 }
 
+func NewCORS(trustedOrigins []string) *ConfigCORS {
+	return &ConfigCORS{
+		trustedOrigins: trustedOrigins,
+	}
+}
+
 func (c *ConfigCORS) CORS(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Vary", "Origin")
@@ -34,18 +40,4 @@ func (c *ConfigCORS) CORS(next http.HandlerFunc) http.HandlerFunc {
 
 		next(w, r)
 	}
-}
-
-func (c *ConfigCORS) SetCORS(cfg ConfigCORS) {
-	*c = cfg
-}
-
-var GlobalConfigCORS = &ConfigCORS{}
-
-func CORS(next http.HandlerFunc) http.HandlerFunc {
-	return GlobalConfigCORS.CORS(next)
-}
-
-func SetCORS(cfg ConfigCORS) {
-	GlobalConfigCORS.SetCORS(cfg)
 }
