@@ -36,8 +36,8 @@ func (c *ConfigCORS) CORS(next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
-func (c *ConfigCORS) SetOrigins(o []string) {
-	c.trustedOrigins = o
+func (c *ConfigCORS) SetCORS(cfg ConfigCORS) {
+	*c = cfg
 }
 
 var GlobalConfigCORS = &ConfigCORS{}
@@ -46,6 +46,6 @@ func CORS(next http.HandlerFunc) http.HandlerFunc {
 	return GlobalConfigCORS.CORS(next)
 }
 
-func SetOrigins(o []string) {
-	GlobalConfigCORS.SetOrigins(o)
+func SetCORS(cfg ConfigCORS) {
+	GlobalConfigCORS.SetCORS(cfg)
 }

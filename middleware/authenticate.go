@@ -76,8 +76,8 @@ func (c *ConfigAuthenticate) Authenticate(next http.HandlerFunc) http.HandlerFun
 	}
 }
 
-func (c *ConfigAuthenticate) SetJWKS(jwks string) {
-	c.jwks = jwks
+func (c *ConfigAuthenticate) SetAuthenticate(cfg ConfigAuthenticate) {
+	*c = cfg
 }
 
 var GlobalConfigAuthenticate = &ConfigAuthenticate{}
@@ -86,6 +86,6 @@ func Authenticate(next http.HandlerFunc) http.HandlerFunc {
 	return GlobalConfigAuthenticate.Authenticate(next)
 }
 
-func SetJWKS(jwks string) {
-	GlobalConfigAuthenticate.SetJWKS(jwks)
+func SetAuthenticate(cfg ConfigAuthenticate) {
+	GlobalConfigAuthenticate.SetAuthenticate(cfg)
 }

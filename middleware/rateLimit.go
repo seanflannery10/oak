@@ -79,6 +79,6 @@ func RateLimit(next http.HandlerFunc) http.HandlerFunc {
 	return GlobalConfigRateLimit.RateLimit(next)
 }
 
-func SetRateLimitConfig(c ConfigRateLimit) {
-	GlobalConfigRateLimit.SetRateLimitConfig(c)
+func SetRateLimit(cfg ConfigRateLimit) {
+	GlobalConfigRateLimit.SetRateLimitConfig(cfg)
 }
