@@ -2,21 +2,22 @@ package read
 
 import (
 	"errors"
+	"github.com/julienschmidt/httprouter"
 	"github.com/seanflannery10/oak/validator"
 	"net/http"
 	"strconv"
 	"strings"
 )
 
-func ID(r *http.Request) (int, error) {
-	s := r.URL.Query().Get("id")
+func readIDParam(r *http.Request) (int64, error) {
+	params := httprouter.ParamsFromContext(r.Context())
 
-	i, err := strconv.Atoi(s)
-	if err != nil || i < 1 {
+	id, err := strconv.ParseInt(params.ByName("id"), 10, 64)
+	if err != nil || id < 1 {
 		return 0, errors.New("invalid id parameter")
 	}
 
-	return i, nil
+	return id, nil
 }
 
 func String(r *http.Request, key string, defaultValue string) string {
