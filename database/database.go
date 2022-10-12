@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"time"
 
-	_ "github.com/lib/pq"
+	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 type Config struct {
@@ -19,7 +19,8 @@ type Config struct {
 const defaultTimeout = 3 * time.Second
 
 func New(cfg Config) (*sql.DB, error) {
-	db, err := sql.Open("postgres", "postgres://"+cfg.dsn)
+
+	db, err := sql.Open("pgx", "postgres://"+cfg.dsn)
 	if err != nil {
 		return nil, err
 	}
