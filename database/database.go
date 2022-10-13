@@ -8,6 +8,7 @@ import (
 
 type Config struct {
 	dsn                   string
+	minConns              int32
 	maxConns              int32
 	maxConnLifetime       string
 	maxConnLifetimeJitter string
@@ -20,6 +21,7 @@ func New(cfg Config) (*pgxpool.Pool, error) {
 		return nil, err
 	}
 
+	config.MinConns = cfg.minConns
 	config.MaxConns = cfg.maxConns
 
 	maxConnLifetime, err := time.ParseDuration(cfg.maxConnLifetime)
