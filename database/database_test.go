@@ -5,16 +5,14 @@ import (
 )
 
 func TestNew(t *testing.T) {
-	cfg := &Config{
-		dsn:                   "test",
+	_, err := New(Config{
+		dsn:                   "postgresql://testing",
 		minConns:              30,
 		maxConns:              30,
 		maxConnLifetime:       "60m",
 		maxConnLifetimeJitter: "5s",
 		maxConnIdleTime:       "30m",
-	}
-
-	_, err := New(*cfg)
+	})
 	if err != nil {
 		t.Fatal(err)
 	}
