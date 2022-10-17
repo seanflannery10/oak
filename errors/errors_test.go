@@ -1,17 +1,14 @@
 package errors
 
 import (
-	"bytes"
-	"github.com/seanflannery10/oak/log"
+	"github.com/seanflannery10/oak/assert"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 )
 
-var output bytes.Buffer
-
 func TestErrorMessage(t *testing.T) {
-	log.SetOutput(&output)
 	w := httptest.NewRecorder()
 
 	r, err := http.NewRequest(http.MethodGet, "/", nil)
@@ -19,6 +16,12 @@ func TestErrorMessage(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	ErrorMessage(w, r, 200, "test")
-	//assert.StringContains(t, output.String(), "200")
+	ErrorMessage(w, r, 200, "Test")
+
+	res, err := io.ReadAll(w.Result().Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.StringContains(t, string(res), "Test")
 }
