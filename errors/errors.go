@@ -6,7 +6,6 @@ import (
 	"github.com/seanflannery10/oak/log"
 	"github.com/seanflannery10/oak/validator"
 	"net/http"
-	"strings"
 )
 
 func ErrorMessage(w http.ResponseWriter, r *http.Request, status int, message string) {
@@ -14,9 +13,7 @@ func ErrorMessage(w http.ResponseWriter, r *http.Request, status int, message st
 }
 
 func ErrorMessageWithHeaders(w http.ResponseWriter, r *http.Request, status int, message string, headers http.Header) {
-	message = strings.ToUpper(message[:1]) + message[1:]
-
-	err := json.EncodeWithHeaders(w, status, map[string]string{"Error": message}, headers)
+	err := json.EncodeWithHeaders(w, status, map[string]string{"error": message}, headers)
 	if err != nil {
 		log.Error(err, map[string]string{
 			"request_method": r.Method,
