@@ -3,6 +3,7 @@ package errors
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"github.com/seanflannery10/oak/assert"
 	"github.com/seanflannery10/oak/validator"
 	"io"
@@ -13,34 +14,17 @@ import (
 
 func TestErrorMessage(t *testing.T) {
 	tests := []struct {
-		name string
 		sc   int
 		body string
 	}{
-		{
-			name: "200",
-			sc:   200,
-			body: "testing status code 200",
-		},
-		{
-			name: "401",
-			sc:   401,
-			body: "testing status code 401",
-		},
-		{
-			name: "404",
-			sc:   404,
-			body: "testing status code 404",
-		},
-		{
-			name: "500",
-			sc:   500,
-			body: "testing status code 500",
-		},
+		{200, "testing status code 200"},
+		{401, "testing status code 401"},
+		{404, "testing status code 404"},
+		{500, "testing status code 500"},
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run(fmt.Sprintf("%#v", tt.sc), func(t *testing.T) {
 			w := httptest.NewRecorder()
 
 			r, err := http.NewRequest(http.MethodGet, "/", nil)
@@ -80,7 +64,7 @@ func TestFailedValidation(t *testing.T) {
 
 func TestStatusCodesWithError(t *testing.T) {
 	tests := []struct {
-		name string
+		name T
 		sc   int
 		f    func(http.ResponseWriter, *http.Request, error)
 	}{
