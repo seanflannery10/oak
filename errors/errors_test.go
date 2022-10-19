@@ -64,7 +64,7 @@ func TestFailedValidation(t *testing.T) {
 
 func TestStatusCodesWithError(t *testing.T) {
 	tests := []struct {
-		name T
+		name string
 		sc   int
 		f    func(http.ResponseWriter, *http.Request, error)
 	}{
