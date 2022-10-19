@@ -26,12 +26,12 @@ func ErrorMessageWithHeaders(w http.ResponseWriter, r *http.Request, status int,
 func ServerError(w http.ResponseWriter, r *http.Request, err error) {
 	log.Error(err, nil)
 
-	message := "The server encountered a problem and could not process your json"
+	message := "the server encountered a problem and could not process your json"
 	ErrorMessage(w, r, http.StatusInternalServerError, message)
 }
 
 func NotFound(w http.ResponseWriter, r *http.Request) {
-	message := "The requested resource could not be found"
+	message := "the requested resource could not be found"
 	ErrorMessage(w, r, http.StatusNotFound, message)
 }
 
@@ -55,11 +55,12 @@ func InvalidAuthenticationToken(w http.ResponseWriter, r *http.Request) {
 	headers := make(http.Header)
 	headers.Set("WWW-Authenticate", "Bearer")
 
-	ErrorMessageWithHeaders(w, r, http.StatusUnauthorized, "Invalid or missing authentication token", headers)
+	ErrorMessageWithHeaders(w, r, http.StatusUnauthorized, "invalid or missing authentication token", headers)
 }
 
 func AuthenticationRequired(w http.ResponseWriter, r *http.Request) {
-	ErrorMessage(w, r, http.StatusUnauthorized, "You must be authenticated to access this resource")
+	message := "you must be authenticated to access this resource"
+	ErrorMessage(w, r, http.StatusUnauthorized, message)
 }
 
 func RateLimitExceededResponse(w http.ResponseWriter, r *http.Request) {
