@@ -60,7 +60,7 @@ func TestErrorMessage(t *testing.T) {
 			bytes.TrimSpace(body)
 
 			assert.StringContains(t, string(body), tt.body)
-			assert.Equal(t, res.StatusCode, tt.sc)
+			assert.Equal(t, w.Result().StatusCode, tt.sc)
 		})
 	}
 }
@@ -73,8 +73,7 @@ func TestFailedValidation(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	v := &validator.Validator{}
-	FailedValidation(w, r, *v)
+	FailedValidation(w, r, validator.Validator{})
 
 	assert.Equal(t, w.Result().StatusCode, http.StatusUnprocessableEntity)
 }
