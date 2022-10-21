@@ -12,15 +12,51 @@ func TestEqual(t *testing.T) {
 		e float32
 		r bool
 	}{
-		{0, 0, true},
-		{200, 200, true},
-		{201, 200, false},
-		{200.0, 200.0, true},
-		{200.1, 200.0, false},
-		{-200, -200, true},
-		{-201, -200, false},
-		{-200.0, -200.0, true},
-		{-200.1, -200.0, false},
+		{
+			0,
+			0,
+			true,
+		},
+		{
+			200,
+			200,
+			true,
+		},
+		{
+			201,
+			200,
+			false,
+		},
+		{
+			200.0,
+			200.0,
+			true,
+		},
+		{
+			200.1,
+			200.0,
+			false,
+		},
+		{
+			-200,
+			-200,
+			true,
+		},
+		{
+			-201,
+			-200,
+			false,
+		},
+		{
+			-200.0,
+			-200.0,
+			true,
+		},
+		{
+			-200.1,
+			-200.0,
+			false,
+		},
 	}
 
 	for _, tt := range testsNums {
@@ -37,9 +73,21 @@ func TestEqual(t *testing.T) {
 		e string
 		r bool
 	}{
-		{"123", "123", true},
-		{"124", "123", false},
-		{"", "", true},
+		{
+			"123",
+			"123",
+			true,
+		},
+		{
+			"124",
+			"123",
+			false,
+		},
+		{
+			"",
+			"",
+			true,
+		},
 	}
 
 	for _, tt := range testsStrings {
@@ -88,9 +136,21 @@ func TestStringContains(t *testing.T) {
 		e string
 		r bool
 	}{
-		{"this is a test", "test", true},
-		{"this is a", "test", false},
-		{"", "", true},
+		{
+			"this is a test",
+			"test",
+			true,
+		},
+		{
+			"this is a",
+			"test",
+			false,
+		},
+		{
+			"",
+			"",
+			true,
+		},
 	}
 
 	for _, tt := range tests {
@@ -108,9 +168,18 @@ func TestNilError(t *testing.T) {
 		a error
 		r bool
 	}{
-		{nil, true},
-		{errors.New("test"), false},
-		{errors.New(""), false},
+		{
+			nil,
+			true,
+		},
+		{
+			errors.New("test"),
+			false,
+		},
+		{
+			errors.New(""),
+			false,
+		},
 	}
 
 	for _, tt := range tests {
