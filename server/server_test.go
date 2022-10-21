@@ -20,7 +20,7 @@ func TestServer_Run(t *testing.T) {
 		srv := New("localhost:4444", nil)
 
 		go func() {
-			time.Sleep(500 * time.Millisecond)
+			time.Sleep(250 * time.Millisecond)
 
 			p, err := os.FindProcess(os.Getpid())
 			if err != nil {
@@ -39,7 +39,7 @@ func TestServer_Run(t *testing.T) {
 		srv := New("localhost:4444", nil)
 
 		go func() {
-			time.Sleep(500 * time.Millisecond)
+			time.Sleep(250 * time.Millisecond)
 
 			p, err := os.FindProcess(os.Getpid())
 			if err != nil {
