@@ -6,5 +6,8 @@ import (
 )
 
 func TestNew(t *testing.T) {
-	assert.SameType(t, New(), &Server{})
+	srv := New("test", nil)
+
+	assert.Equal(t, srv.Addr, "test")
+	assert.SameType(t, srv, &Server{})
 }

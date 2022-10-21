@@ -14,22 +14,24 @@ import (
 )
 
 type Server struct {
+	*http.Server
 	wg sync.WaitGroup
 }
 
-func New() *Server {
-	return &Server{}
+func New(addr string, handler http.Handler) *Server {
+	return &Server{
+		&http.Server{
+			Addr:         addr,
+			Handler:      handler,
+			IdleTimeout:  time.Minute,
+			ReadTimeout:  10 * time.Second,
+			WriteTimeout: 30 * time.Second,
+		},
+		sync.WaitGroup{},
+	}
 }
 
-func (s *Server) Run(addr string, h http.Handler) error {
-	srv := &http.Server{
-		Addr:         addr,
-		Handler:      h,
-		IdleTimeout:  time.Minute,
-		ReadTimeout:  10 * time.Second,
-		WriteTimeout: 30 * time.Second,
-	}
-
+func (s *Server) Run() error {
 	shutdownError := make(chan error)
 
 	go func() {
@@ -42,20 +44,20 @@ func (s *Server) Run(addr string, h http.Handler) error {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 
-		err := srv.Shutdown(ctx)
+		err := s.Shutdown(ctx)
 		if err != nil {
 			shutdownError <- err
 		}
 
-		log.Info("completing background tasks on %s", srv.Addr)
+		log.Info("completing background tasks on %s", s.Addr)
 
 		s.wg.Wait()
 		shutdownError <- nil
 	}()
 
-	log.Info("starting server on %s", srv.Addr)
+	log.Info("starting server on %s", s.Addr)
 
-	err := srv.ListenAndServe()
+	err := s.ListenAndServe()
 	if !errors.Is(err, http.ErrServerClosed) {
 		return err
 	}
@@ -65,7 +67,7 @@ func (s *Server) Run(addr string, h http.Handler) error {
 		return err
 	}
 
-	log.Info("server stopped on %s", srv.Addr)
+	log.Info("server stopped on %s", s.Addr)
 
 	return nil
 }
