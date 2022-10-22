@@ -24,12 +24,14 @@ var (
 	UnixTime = strconv.FormatInt(time.Now().Unix(), 10)
 )
 
-func New() *Logger {
-	return &Logger{
-		output:     os.Stdout,
+func New() (l *Logger) {
+	l = &Logger{
 		minLevel:   uint32(LevelInfo),
 		timeFormat: DateTime,
 	}
+
+	l.SetOutput(os.Stdout)
+	return
 }
 
 func (l *Logger) GetLevel() Level {

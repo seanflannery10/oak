@@ -132,7 +132,6 @@ func TestEncodeWithHeaders(t *testing.T) {
 			"Test 404",
 			"123",
 		},
-
 		{
 			http.StatusInternalServerError,
 			"Test 500",
