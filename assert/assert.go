@@ -17,6 +17,17 @@ func Equal[T comparable](t *testing.T, actual, expected T) bool {
 	return true
 }
 
+func NotEqual[T comparable](t *testing.T, actual, expected T) bool {
+	t.Helper()
+
+	if actual == expected {
+		t.Errorf("got for both: %v", actual)
+		return false
+	}
+
+	return true
+}
+
 func SameType[T comparable](t *testing.T, actual, expected T) bool {
 	t.Helper()
 
