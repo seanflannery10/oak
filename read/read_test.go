@@ -2,8 +2,8 @@ package read
 
 import (
 	"fmt"
-	"github.com/seanflannery10/oak/assert"
-	"github.com/seanflannery10/oak/validator"
+	"github.com/seanflannery10/ossa/assert"
+	"github.com/seanflannery10/ossa/validator"
 	"net/http"
 	"net/url"
 	"strconv"

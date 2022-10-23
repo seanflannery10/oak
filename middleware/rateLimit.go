@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"github.com/seanflannery10/oak/errors"
+	"github.com/seanflannery10/ossa/errors"
 	"github.com/tomasen/realip"
 	"golang.org/x/time/rate"
 	"net/http"

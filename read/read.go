@@ -3,7 +3,7 @@ package read
 import (
 	"errors"
 	"github.com/julienschmidt/httprouter"
-	"github.com/seanflannery10/oak/validator"
+	"github.com/seanflannery10/ossa/validator"
 	"net/http"
 	"strconv"
 	"strings"

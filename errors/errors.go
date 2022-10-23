@@ -2,9 +2,9 @@ package errors
 
 import (
 	"fmt"
-	"github.com/seanflannery10/oak/json"
-	"github.com/seanflannery10/oak/log"
-	"github.com/seanflannery10/oak/validator"
+	"github.com/seanflannery10/ossa/json"
+	"github.com/seanflannery10/ossa/log"
+	"github.com/seanflannery10/ossa/validator"
 	"net/http"
 )
 

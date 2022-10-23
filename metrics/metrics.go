@@ -2,7 +2,7 @@ package metrics
 
 import (
 	"expvar"
-	"github.com/seanflannery10/oak/version"
+	"github.com/seanflannery10/ossa/version"
 	"runtime"
 	"time"
 )

@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"fmt"
-	"github.com/seanflannery10/oak/errors"
+	"github.com/seanflannery10/ossa/errors"
 	"net/http"
 )
 

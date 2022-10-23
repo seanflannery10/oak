@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	"github.com/seanflannery10/oak/errors"
-	"github.com/seanflannery10/oak/json"
-	"github.com/seanflannery10/oak/version"
+	"github.com/seanflannery10/ossa/errors"
+	"github.com/seanflannery10/ossa/json"
+	"github.com/seanflannery10/ossa/version"
 	"net/http"
 )
 

@@ -1,4 +1,4 @@
-module github.com/seanflannery10/oak
+module github.com/seanflannery10/ossa
 
 go 1.19
 

@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/seanflannery10/oak/log"
+	"github.com/seanflannery10/ossa/log"
 	"net/http"
 	"os"
 	"os/signal"

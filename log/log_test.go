@@ -3,7 +3,7 @@ package log
 import (
 	"bytes"
 	"errors"
-	"github.com/seanflannery10/oak/assert"
+	"github.com/seanflannery10/ossa/assert"
 	"os"
 	"os/exec"
 	"regexp"

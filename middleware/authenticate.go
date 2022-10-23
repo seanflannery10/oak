@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"github.com/pascaldekloe/jwt"
-	"github.com/seanflannery10/oak/errors"
+	"github.com/seanflannery10/ossa/errors"
 	"net/http"
 	"strings"
 	"time"

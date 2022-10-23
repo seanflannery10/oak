@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"bytes"
-	"github.com/seanflannery10/oak/assert"
+	"github.com/seanflannery10/ossa/assert"
 	"io"
 	"net/http"
 	"net/http/httptest"

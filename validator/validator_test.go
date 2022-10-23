@@ -1,7 +1,7 @@
 package validator
 
 import (
-	"github.com/seanflannery10/oak/assert"
+	"github.com/seanflannery10/ossa/assert"
 	"testing"
 )
 

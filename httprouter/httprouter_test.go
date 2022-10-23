@@ -2,7 +2,7 @@ package httprouter
 
 import (
 	"github.com/julienschmidt/httprouter"
-	"github.com/seanflannery10/oak/assert"
+	"github.com/seanflannery10/ossa/assert"
 	"testing"
 )
 
