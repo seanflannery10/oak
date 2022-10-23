@@ -66,7 +66,7 @@ func TestDecode(t *testing.T) {
 			}
 
 			err = Decode(w, r, &testData)
-			assert.StringContains(t, err.Error(), tt.e)
+			assert.Contains(t, err.Error(), tt.e)
 		})
 	}
 }

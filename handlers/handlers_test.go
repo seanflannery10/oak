@@ -30,5 +30,5 @@ func TestHealthcheck(t *testing.T) {
 	}
 	bytes.TrimSpace(body)
 
-	assert.StringContains(t, string(body), "available")
+	assert.Contains(t, string(body), "available")
 }

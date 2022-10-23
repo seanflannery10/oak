@@ -43,7 +43,7 @@ func TestErrorMessage(t *testing.T) {
 			}
 			bytes.TrimSpace(body)
 
-			assert.StringContains(t, string(body), tt.body)
+			assert.Contains(t, string(body), tt.body)
 			assert.Equal(t, w.Result().StatusCode, tt.sc)
 		})
 	}

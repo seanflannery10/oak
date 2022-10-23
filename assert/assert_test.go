@@ -130,7 +130,7 @@ func TestSameType(t *testing.T) {
 	})
 }
 
-func TestStringContains(t *testing.T) {
+func TestContains(t *testing.T) {
 	tests := []struct {
 		a string
 		e string
@@ -155,9 +155,9 @@ func TestStringContains(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(fmt.Sprintf("%#v", tt.e), func(t *testing.T) {
-			res := StringContains(new(testing.T), tt.a, tt.e)
+			res := Contains(new(testing.T), tt.a, tt.e)
 			if res != tt.r {
-				t.Errorf("StringContains(%#v, %#v) should return %#v", tt.a, tt.e, tt.r)
+				t.Errorf("Contains(%#v, %#v) should return %#v", tt.a, tt.e, tt.r)
 			}
 		})
 	}
