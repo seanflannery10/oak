@@ -12,6 +12,34 @@ import (
 	"time"
 )
 
+type Level int8
+
+const (
+	LevelDebug Level = iota
+	LevelInfo
+	LevelWarning
+	LevelError
+	LevelFatal
+	LevelDisabled
+)
+
+func (l Level) String() string {
+	switch l {
+	case LevelDebug:
+		return "debug"
+	case LevelInfo:
+		return "info"
+	case LevelWarning:
+		return "warning"
+	case LevelError:
+		return "error"
+	case LevelFatal:
+		return "fatal"
+	default:
+		return ""
+	}
+}
+
 type Logger struct {
 	output     io.Writer
 	minLevel   uint32
@@ -40,8 +68,8 @@ func (l *Logger) SetLevel(level Level) {
 	atomic.StoreUint32(&l.minLevel, uint32(level))
 }
 
-func (l *Logger) UseUnixTime() {
-	l.timeFormat = UnixTime
+func (l *Logger) SetTimeFormat(timeFormat string) {
+	l.timeFormat = timeFormat
 }
 
 func (l *Logger) SetOutput(w io.Writer) {
@@ -77,15 +105,6 @@ func (l *Logger) print(level Level, message string, properties map[string]string
 		return
 	}
 
-	line := l.jsonLine(level, message, properties)
-
-	l.mu.Lock()
-	defer l.mu.Unlock()
-
-	fmt.Fprintln(l.output, line)
-}
-
-func (l *Logger) jsonLine(level Level, message string, properties map[string]string) string {
 	aux := struct {
 		Level      string            `json:"level"`
 		Time       string            `json:"time"`
@@ -107,8 +126,49 @@ func (l *Logger) jsonLine(level Level, message string, properties map[string]str
 
 	line, err := json.Marshal(aux)
 	if err != nil {
-		return fmt.Sprintf("%s: unable to marshal log message: %s", LevelError.String(), err.Error())
+		line = []byte(fmt.Sprintf("%s: unable to marshal log message: %s", LevelError.String(), err.Error()))
 	}
 
-	return string(line)
+	l.mu.Lock()
+	defer l.mu.Unlock()
+
+	fmt.Fprintln(l.output, string(line))
+}
+
+var GlobalLogger = New()
+
+func GetLevel() Level {
+	return GlobalLogger.GetLevel()
+}
+
+func SetLevel(level Level) {
+	GlobalLogger.SetLevel(level)
+}
+
+func SetTimeFormat(timeFormat string) {
+	GlobalLogger.SetTimeFormat(timeFormat)
+}
+
+func SetOutput(w io.Writer) {
+	GlobalLogger.SetOutput(w)
+}
+
+func Debug(format string, v ...any) {
+	GlobalLogger.Debug(format, v...)
+}
+
+func Info(format string, v ...any) {
+	GlobalLogger.Info(format, v...)
+}
+
+func Warning(format string, v ...any) {
+	GlobalLogger.Warning(format, v...)
+}
+
+func Error(err error, properties map[string]string) {
+	GlobalLogger.Error(err, properties)
+}
+
+func Fatal(err error, properties map[string]string) {
+	GlobalLogger.Fatal(err, properties)
 }
