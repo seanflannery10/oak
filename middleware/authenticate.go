@@ -1,24 +1,36 @@
 package middleware
 
 import (
+	"fmt"
 	"github.com/pascaldekloe/jwt"
 	"github.com/seanflannery10/ossa/errors"
+	"github.com/seanflannery10/ossa/log"
 	"net/http"
 	"strings"
 	"time"
 )
 
-type ConfigAuthenticate struct {
+type AuthenticateConfig struct {
 	jwks string
 }
 
-func NewAuthenticate(jwks string) *ConfigAuthenticate {
-	return &ConfigAuthenticate{
-		jwks: jwks,
-	}
+var gAuthenticateConfig = &AuthenticateConfig{
+	jwks: "",
 }
 
-func (c *ConfigAuthenticate) Authenticate(next http.HandlerFunc) http.HandlerFunc {
+func Authenticate(next http.HandlerFunc) http.HandlerFunc {
+	if gAuthenticateConfig.jwks == "" {
+		log.Fatal(fmt.Errorf("SetAuthenticateConfig not set"), nil)
+	}
+
+	return gAuthenticateConfig.Authenticate(next)
+}
+
+func SetAuthenticateConfig(jwks string) {
+	gAuthenticateConfig.jwks = jwks
+}
+
+func (c *AuthenticateConfig) Authenticate(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Vary", "Authorization")
 

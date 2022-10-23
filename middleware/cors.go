@@ -1,18 +1,32 @@
 package middleware
 
-import "net/http"
+import (
+	"fmt"
+	"github.com/seanflannery10/ossa/log"
+	"net/http"
+)
 
-type ConfigCORS struct {
+type CORSConfig struct {
 	trustedOrigins []string
 }
 
-func NewCORS(trustedOrigins []string) *ConfigCORS {
-	return &ConfigCORS{
-		trustedOrigins: trustedOrigins,
-	}
+var gCORSConfig = &CORSConfig{
+	trustedOrigins: nil,
 }
 
-func (c *ConfigCORS) CORS(next http.HandlerFunc) http.HandlerFunc {
+func CORS(next http.HandlerFunc) http.HandlerFunc {
+	if gCORSConfig.trustedOrigins == nil {
+		log.Fatal(fmt.Errorf("SetCORSConfig not set"), nil)
+	}
+
+	return gCORSConfig.CORS(next)
+}
+
+func SetCORSConfig(trustedOrigins []string) {
+	gCORSConfig.trustedOrigins = trustedOrigins
+}
+
+func (c *CORSConfig) CORS(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Vary", "Origin")
 

@@ -9,21 +9,29 @@ import (
 	"time"
 )
 
-type ConfigRateLimit struct {
+type RateLimitConfig struct {
 	enabled bool
 	rps     float64
 	burst   int
 }
 
-func NewRateLimit(enabled bool, rps float64, burst int) *ConfigRateLimit {
-	return &ConfigRateLimit{
-		enabled: enabled,
-		rps:     rps,
-		burst:   burst,
-	}
+var gRateLimitConfig = &RateLimitConfig{
+	enabled: true,
+	rps:     4,
+	burst:   2,
 }
 
-func (c *ConfigRateLimit) RateLimit(next http.HandlerFunc) http.HandlerFunc {
+func RateLimit(next http.HandlerFunc) http.HandlerFunc {
+	return gRateLimitConfig.RateLimit(next)
+}
+
+func SetRateLimitConfig(enabled bool, rps float64, burst int) {
+	gRateLimitConfig.enabled = enabled
+	gRateLimitConfig.rps = rps
+	gRateLimitConfig.burst = burst
+}
+
+func (c *RateLimitConfig) RateLimit(next http.HandlerFunc) http.HandlerFunc {
 	type client struct {
 		limiter  *rate.Limiter
 		lastSeen time.Time
