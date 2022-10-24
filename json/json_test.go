@@ -3,7 +3,7 @@ package json
 import (
 	"fmt"
 	"github.com/seanflannery10/ossa/assert"
-	"io"
+	"github.com/seanflannery10/ossa/helpers"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -51,7 +51,7 @@ func TestDecode(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(fmt.Sprintf("%#v", tt.a), func(t *testing.T) {
-			w := httptest.NewRecorder()
+			rr := httptest.NewRecorder()
 
 			json := strings.NewReader(tt.a)
 
@@ -65,7 +65,7 @@ func TestDecode(t *testing.T) {
 				Int    int    `a:"int"`
 			}
 
-			err = Decode(w, r, &testData)
+			err = Decode(rr, r, &testData)
 			assert.Contains(t, err.Error(), tt.e)
 		})
 	}
@@ -92,21 +92,17 @@ func TestEncode(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(fmt.Sprintf("%#v", tt.s), func(t *testing.T) {
-			w := httptest.NewRecorder()
+			rr := httptest.NewRecorder()
 
-			err := Encode(w, tt.c, tt.s)
+			err := Encode(rr, tt.c, tt.s)
 			if err != nil {
 				t.Fatal(err)
 			}
 
-			res := w.Result()
-			defer res.Body.Close()
-			body, err := io.ReadAll(res.Body)
-			if err != nil {
-				t.Fatal(err)
-			}
+			res := rr.Result()
+			body := helpers.GetBody(t, res)
 
-			bodyString := strings.TrimSuffix(string(body), "\"\n")
+			bodyString := strings.TrimSuffix(body, "\"\n")
 			bodyString = strings.TrimPrefix(bodyString, "\"")
 
 			assert.Equal(t, bodyString, tt.s)
@@ -141,24 +137,20 @@ func TestEncodeWithHeaders(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(fmt.Sprintf("%#v", tt.s), func(t *testing.T) {
-			w := httptest.NewRecorder()
+			rr := httptest.NewRecorder()
 
 			headers := make(http.Header)
 			headers.Set("X-Request-Id", tt.h)
 
-			err := EncodeWithHeaders(w, tt.c, tt.s, headers)
+			err := EncodeWithHeaders(rr, tt.c, tt.s, headers)
 			if err != nil {
 				t.Fatal(err)
 			}
 
-			res := w.Result()
-			defer res.Body.Close()
-			body, err := io.ReadAll(res.Body)
-			if err != nil {
-				t.Fatal(err)
-			}
+			res := rr.Result()
+			body := helpers.GetBody(t, res)
 
-			bodyString := strings.TrimSuffix(string(body), "\"\n")
+			bodyString := strings.TrimSuffix(body, "\"\n")
 			bodyString = strings.TrimPrefix(bodyString, "\"")
 
 			assert.Equal(t, bodyString, tt.s)

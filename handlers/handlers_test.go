@@ -1,34 +1,28 @@
 package handlers
 
 import (
-	"bytes"
 	"github.com/seanflannery10/ossa/assert"
-	"io"
+	"github.com/seanflannery10/ossa/helpers"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 )
 
 func TestHealthcheck(t *testing.T) {
-	w := httptest.NewRecorder()
+	rr := httptest.NewRecorder()
 
 	r, err := http.NewRequest(http.MethodGet, "/", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	Healthcheck(w, r)
+	Healthcheck(rr, r)
 
-	rs := w.Result()
+	rs := rr.Result()
 
 	assert.Equal(t, rs.StatusCode, http.StatusOK)
 
-	defer rs.Body.Close()
-	body, err := io.ReadAll(rs.Body)
-	if err != nil {
-		t.Fatal(err)
-	}
-	bytes.TrimSpace(body)
+	body := helpers.GetBody(t, rr.Result())
 
-	assert.Contains(t, string(body), "available")
+	assert.Contains(t, body, "available")
 }

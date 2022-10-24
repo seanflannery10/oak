@@ -1,12 +1,11 @@
 package errors
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"github.com/seanflannery10/ossa/assert"
+	"github.com/seanflannery10/ossa/helpers"
 	"github.com/seanflannery10/ossa/validator"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -25,41 +24,34 @@ func TestErrorMessage(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(fmt.Sprintf("%#v", tt.sc), func(t *testing.T) {
-			w := httptest.NewRecorder()
+			rr := httptest.NewRecorder()
 
 			r, err := http.NewRequest(http.MethodGet, "/", nil)
 			if err != nil {
 				t.Fatal(err)
 			}
 
-			ErrorMessage(w, r, tt.sc, tt.body)
+			ErrorMessage(rr, r, tt.sc, tt.body)
 
-			res := w.Result()
+			body := helpers.GetBody(t, rr.Result())
 
-			defer res.Body.Close()
-			body, err := io.ReadAll(res.Body)
-			if err != nil {
-				t.Fatal(err)
-			}
-			bytes.TrimSpace(body)
-
-			assert.Contains(t, string(body), tt.body)
-			assert.Equal(t, w.Result().StatusCode, tt.sc)
+			assert.Contains(t, body, tt.body)
+			assert.Equal(t, rr.Result().StatusCode, tt.sc)
 		})
 	}
 }
 
 func TestFailedValidation(t *testing.T) {
-	w := httptest.NewRecorder()
+	rr := httptest.NewRecorder()
 
 	r, err := http.NewRequest(http.MethodGet, "/", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	FailedValidation(w, r, validator.Validator{})
+	FailedValidation(rr, r, validator.Validator{})
 
-	assert.Equal(t, w.Result().StatusCode, http.StatusUnprocessableEntity)
+	assert.Equal(t, rr.Result().StatusCode, http.StatusUnprocessableEntity)
 }
 
 func TestStatusCodesWithError(t *testing.T) {
@@ -82,16 +74,16 @@ func TestStatusCodesWithError(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			w := httptest.NewRecorder()
+			rr := httptest.NewRecorder()
 
 			r, err := http.NewRequest(http.MethodGet, "/", nil)
 			if err != nil {
 				t.Fatal(err)
 			}
 
-			tt.f(w, r, errors.New("test"))
+			tt.f(rr, r, errors.New("test"))
 
-			assert.Equal(t, w.Result().StatusCode, tt.sc)
+			assert.Equal(t, rr.Result().StatusCode, tt.sc)
 		})
 	}
 }
@@ -131,16 +123,16 @@ func TestStatusCodesWithoutError(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			w := httptest.NewRecorder()
+			rr := httptest.NewRecorder()
 
 			r, err := http.NewRequest(http.MethodGet, "/", nil)
 			if err != nil {
 				t.Fatal(err)
 			}
 
-			tt.f(w, r)
+			tt.f(rr, r)
 
-			assert.Equal(t, w.Result().StatusCode, tt.sc)
+			assert.Equal(t, rr.Result().StatusCode, tt.sc)
 		})
 	}
 }
