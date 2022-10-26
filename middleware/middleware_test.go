@@ -34,7 +34,31 @@ func TestMiddleware_Authenticate(t *testing.T) {
 		assert.Equal(t, res.StatusCode, http.StatusUnauthorized)
 	})
 
-	t.Run("Bad JWKS", func(t *testing.T) {
+	//t.Run("Bad JWKS", func(t *testing.T) {
+	//	rr := httptest.NewRecorder()
+	//	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+	//
+	//	r.Header.Add("Authorization", "Bearer 1234")
+	//
+	//	m.Authenticate(next).ServeHTTP(rr, r)
+	//
+	//	res := rr.Result()
+	//	body := helpers.GetBody(t, res)
+	//
+	//	assert.Equal(t, res.Header.Get("Vary"), "Authorization")
+	//	assert.Contains(t, body, "invalid or missing authentication token")
+	//	assert.Equal(t, res.StatusCode, http.StatusUnauthorized)
+	//})
+
+	t.Run("Bad Token", func(t *testing.T) {
+		srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(200)
+			w.Write([]byte("Test"))
+		}))
+		defer srv.Close()
+
+		m := New(srv.URL, nil)
+
 		rr := httptest.NewRecorder()
 		r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
@@ -47,24 +71,6 @@ func TestMiddleware_Authenticate(t *testing.T) {
 
 		assert.Equal(t, res.Header.Get("Vary"), "Authorization")
 		assert.Contains(t, body, "invalid or missing authentication token")
-		assert.Equal(t, res.StatusCode, http.StatusUnauthorized)
-	})
-
-	t.Run("Bad Token", func(t *testing.T) {
-		m := New("goodUrl", nil)
-
-		rr := httptest.NewRecorder()
-		r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-		r.Header.Add("Authorization", "Bearer 1234")
-
-		m.Authenticate(next).ServeHTTP(rr, r)
-
-		res := rr.Result()
-		body := helpers.GetBody(t, res)
-
-		assert.Equal(t, res.Header.Get("Vary"), "Authorization")
-		assert.Contains(t, body, "OK")
 		assert.Equal(t, res.StatusCode, http.StatusUnauthorized)
 	})
 
