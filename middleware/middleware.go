@@ -78,14 +78,17 @@ func (m *Middleware) Authenticate(next http.HandlerFunc) http.HandlerFunc {
 				return
 			}
 
-			claims, ok := token.Claims.(*jwt.RegisteredClaims)
-			if !ok {
-				errors.InvalidAuthenticationToken(w, r)
-				return
-			}
+			claims, _ := token.Claims.(*jwt.RegisteredClaims)
+
+			//
+			//token, err := jwt.Parse(tokenString, jwks.Keyfunc)
+			//if err != nil {
+			//	errors.InvalidAuthenticationToken(w, r)
+			//	return
+			//}
 
 			fmt.Print("\n")
-			fmt.Print(claims.Subject)
+			fmt.Print(claims.Issuer)
 			fmt.Print("\n")
 		}
 
