@@ -18,33 +18,37 @@ import (
 )
 
 type Middleware struct {
-	jwks           string
-	trustedOrigins []string
-	rlc            RateLimitConfig
-}
-
-type RateLimitConfig struct {
-	enabled bool
-	rps     float64
-	burst   int
-}
-
-func New(jwks string, trustedOrigins []string) *Middleware {
-	return &Middleware{
-		jwks:           jwks,
-		trustedOrigins: trustedOrigins,
-		rlc: RateLimitConfig{
-			enabled: true,
-			rps:     2,
-			burst:   4,
-		},
+	authenticate struct {
+		jwksURL string
+		apiURL  string
+	}
+	cors struct {
+		trustedOrigins []string
+	}
+	rateLimit struct {
+		enabled bool
+		rps     float64
+		burst   int
 	}
 }
 
+func New() *Middleware {
+	return &Middleware{}
+}
+
+func (m *Middleware) SetAuthenticateConfig(jwksURL, apiURL string) {
+	m.authenticate.jwksURL = jwksURL
+	m.authenticate.apiURL = apiURL
+}
+
+func (m *Middleware) SetCorsConfig(trustedOrigins []string) {
+	m.cors.trustedOrigins = trustedOrigins
+}
+
 func (m *Middleware) SetRateLimitConfig(enabled bool, rps float64, burst int) {
-	m.rlc.enabled = enabled
-	m.rlc.rps = rps
-	m.rlc.burst = burst
+	m.rateLimit.enabled = enabled
+	m.rateLimit.rps = rps
+	m.rateLimit.burst = burst
 }
 
 func (m *Middleware) Chain(constructors ...alice.Constructor) alice.Chain {
@@ -64,7 +68,7 @@ func (m *Middleware) Authenticate(next http.HandlerFunc) http.HandlerFunc {
 				return
 			}
 
-			jwks, err := keyfunc.Get(m.jwks, keyfunc.Options{})
+			jwks, err := keyfunc.Get(m.authenticate.jwksURL, keyfunc.Options{})
 			if err != nil {
 				errors.InvalidAuthenticationToken(w, r)
 				return
@@ -85,18 +89,18 @@ func (m *Middleware) Authenticate(next http.HandlerFunc) http.HandlerFunc {
 				return
 			}
 
-			issuer := strings.TrimRight(m.jwks, "/jwks")
+			if !claims.VerifyAudience(m.authenticate.apiURL, false) {
+				errors.InvalidAuthenticationToken(w, r)
+				return
+			}
+
+			issuer := strings.TrimRight(m.authenticate.jwksURL, "/jwksURL")
 
 			if !claims.VerifyIssuer(issuer, false) {
 				errors.InvalidAuthenticationToken(w, r)
 				return
 			}
 
-			// TODO Add m.audience
-			//if !claims.VerifyAudience(m.audience, false) {
-			//	errors.InvalidAuthenticationToken(w, r)
-			//	return
-			//}
 		}
 
 		next(w, r)
@@ -112,8 +116,8 @@ func (m *Middleware) CORS(next http.HandlerFunc) http.HandlerFunc {
 		origin := r.Header.Get("Origin")
 
 		if origin != "" {
-			for i := range m.trustedOrigins {
-				if origin == m.trustedOrigins[i] {
+			for i := range m.cors.trustedOrigins {
+				if origin == m.cors.trustedOrigins[i] {
 					w.Header().Set("Access-Control-Allow-Origin", origin)
 
 					if r.Method == http.MethodOptions && r.Header.Get("Access-Control-Request-Method") != "" {
@@ -177,14 +181,14 @@ func (m *Middleware) RateLimit(next http.HandlerFunc) http.HandlerFunc {
 	}()
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		if m.rlc.enabled {
+		if m.rateLimit.enabled {
 			ip := realip.FromRequest(r)
 
 			mu.Lock()
 
 			if _, found := clients[ip]; !found {
 				clients[ip] = &client{
-					limiter: rate.NewLimiter(rate.Limit(m.rlc.rps), m.rlc.burst),
+					limiter: rate.NewLimiter(rate.Limit(m.rateLimit.rps), m.rateLimit.burst),
 				}
 			}
 
