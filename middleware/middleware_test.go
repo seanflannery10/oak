@@ -86,7 +86,7 @@ func TestMiddleware_Authenticate(t *testing.T) {
 		}))
 		defer srv.Close()
 
-		m.SetAuthenticateConfig(srv.URL+"/oidc/jwksURL", "https://test.api")
+		m.SetAuthenticateConfig(srv.URL+"/oidc/jwks", "https://test.api")
 
 		rr := httptest.NewRecorder()
 		r, _ := http.NewRequest(http.MethodGet, "/oidc/jwks", nil)

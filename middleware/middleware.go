@@ -7,6 +7,7 @@ import (
 	"github.com/felixge/httpsnoop"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/justinas/alice"
+	"github.com/seanflannery10/ossa/context"
 	"github.com/seanflannery10/ossa/errors"
 	"github.com/tomasen/realip"
 	"golang.org/x/time/rate"
@@ -17,20 +18,22 @@ import (
 	"time"
 )
 
-type Middleware struct {
-	authenticate struct {
-		jwksURL string
-		apiURL  string
+type (
+	Middleware struct {
+		authenticate struct {
+			jwksURL string
+			apiURL  string
+		}
+		cors struct {
+			trustedOrigins []string
+		}
+		rateLimit struct {
+			enabled bool
+			rps     float64
+			burst   int
+		}
 	}
-	cors struct {
-		trustedOrigins []string
-	}
-	rateLimit struct {
-		enabled bool
-		rps     float64
-		burst   int
-	}
-}
+)
 
 func New() *Middleware {
 	return &Middleware{}
@@ -94,17 +97,35 @@ func (m *Middleware) Authenticate(next http.HandlerFunc) http.HandlerFunc {
 				return
 			}
 
-			issuer := strings.TrimRight(m.authenticate.jwksURL, "/jwksURL")
+			issuer := strings.TrimRight(m.authenticate.jwksURL, "/jwks")
 
 			if !claims.VerifyIssuer(issuer, false) {
 				errors.InvalidAuthenticationToken(w, r)
 				return
 			}
 
+			user := context.User{
+				ID: claims.Subject,
+			}
+
+			r = context.SetAuthenticatedUser(r, user)
 		}
 
 		next(w, r)
 	}
+}
+
+func (m *Middleware) RequireAuthenticatedUser(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		authenticatedUser := context.GetAuthenticatedUser(r)
+
+		if authenticatedUser == nil {
+			errors.AuthenticationRequired(w, r)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
 }
 
 func (m *Middleware) CORS(next http.HandlerFunc) http.HandlerFunc {
