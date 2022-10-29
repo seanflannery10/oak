@@ -15,5 +15,9 @@ func SetAuthenticatedUser(r *http.Request, user string) *http.Request {
 
 func GetAuthenticatedUser(r *http.Request) string {
 	user := r.Context().Value(userContextKey)
+	if user == nil {
+		return ""
+	}
+
 	return fmt.Sprintf("%v", user)
 }
