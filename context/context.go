@@ -2,27 +2,18 @@ package context
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 )
 
-type User struct {
-	ID string
-}
+const userContextKey = "authenticatedUser"
 
-type contextKey string
-
-const authenticatedUserContextKey = contextKey("authenticatedUser")
-
-func SetAuthenticatedUser(r *http.Request, user User) *http.Request {
-	ctx := context.WithValue(r.Context(), authenticatedUserContextKey, user)
+func SetAuthenticatedUser(r *http.Request, user string) *http.Request {
+	ctx := context.WithValue(r.Context(), userContextKey, user)
 	return r.WithContext(ctx)
 }
 
-func GetAuthenticatedUser(r *http.Request) *User {
-	user, ok := r.Context().Value(authenticatedUserContextKey).(*User)
-	if !ok {
-		return nil
-	}
-
-	return user
+func GetAuthenticatedUser(r *http.Request) string {
+	user := r.Context().Value(userContextKey)
+	return fmt.Sprintf("%v", user)
 }

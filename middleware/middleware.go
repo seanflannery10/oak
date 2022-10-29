@@ -104,34 +104,29 @@ func (m *Middleware) Authenticate(next http.HandlerFunc) http.HandlerFunc {
 				return
 			}
 
-			user := context.User{
-				ID: claims.Subject,
-			}
-
-			r = context.SetAuthenticatedUser(r, user)
+			r = context.SetAuthenticatedUser(r, claims.Subject)
 		}
 
 		next(w, r)
 	}
 }
 
-func (m *Middleware) RequireAuthenticatedUser(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+func (m *Middleware) RequireAuthenticatedUser(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
 		authenticatedUser := context.GetAuthenticatedUser(r)
 
-		if authenticatedUser == nil {
+		if authenticatedUser == "" {
 			errors.AuthenticationRequired(w, r)
 			return
 		}
 
-		next.ServeHTTP(w, r)
-	})
+		next(w, r)
+	}
 }
 
 func (m *Middleware) CORS(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Vary", "Origin")
-
 		w.Header().Add("Vary", "Access-Control-Request-Method")
 
 		origin := r.Header.Get("Origin")
