@@ -19,19 +19,25 @@ import (
 )
 
 type (
+	AuthenticateConfig struct {
+		jwksURL string
+		apiURL  string
+	}
+
+	CorsConfig struct {
+		trustedOrigins []string
+	}
+
+	RateLimitConfig struct {
+		enabled bool
+		rps     float64
+		burst   int
+	}
+
 	Middleware struct {
-		authenticate struct {
-			jwksURL string
-			apiURL  string
-		}
-		cors struct {
-			trustedOrigins []string
-		}
-		rateLimit struct {
-			enabled bool
-			rps     float64
-			burst   int
-		}
+		authenticate AuthenticateConfig
+		cors         CorsConfig
+		rateLimit    RateLimitConfig
 	}
 )
 
