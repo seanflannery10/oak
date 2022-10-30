@@ -6,15 +6,17 @@ import (
 	"net/http"
 )
 
-const userContextKey = "authenticatedUser"
+type key string
+
+var userKey key
 
 func SetAuthenticatedUser(r *http.Request, user string) *http.Request {
-	ctx := context.WithValue(r.Context(), userContextKey, user)
+	ctx := context.WithValue(r.Context(), userKey, user)
 	return r.WithContext(ctx)
 }
 
 func GetAuthenticatedUser(r *http.Request) string {
-	user := r.Context().Value(userContextKey)
+	user := r.Context().Value(userKey)
 	if user == nil {
 		return ""
 	}

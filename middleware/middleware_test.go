@@ -106,6 +106,7 @@ func TestMiddleware_RequireAuthenticatedUser(t *testing.T) {
 		r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 		m := New()
+
 		m.RequireAuthenticatedUser(next).ServeHTTP(rr, r)
 
 		body := helpers.GetBody(t, rr.Result())
@@ -120,6 +121,7 @@ func TestMiddleware_RequireAuthenticatedUser(t *testing.T) {
 		r = context.SetAuthenticatedUser(r, "Test")
 
 		m := New()
+
 		m.RequireAuthenticatedUser(next).ServeHTTP(rr, r)
 
 		body := helpers.GetBody(t, rr.Result())
@@ -131,15 +133,40 @@ func TestMiddleware_RequireAuthenticatedUser(t *testing.T) {
 }
 
 func TestMiddleware_CORS(t *testing.T) {
-	rr := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+	t.Run("MethodGet", func(t *testing.T) {
+		rr := httptest.NewRecorder()
+		r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	m := New()
-	m.CORS(next).ServeHTTP(rr, r)
+		r.Header.Set("Origin", "127.0.0.1")
 
-	body := helpers.GetBody(t, rr.Result())
+		m := New()
+		m.SetCorsConfig([]string{"127.0.0.1"})
 
-	assert.Equal(t, body, "OK")
+		m.CORS(next).ServeHTTP(rr, r)
+
+		body := helpers.GetBody(t, rr.Result())
+
+		assert.Equal(t, body, "OK")
+		assert.Equal(t, rr.Result().StatusCode, http.StatusOK)
+	})
+
+	t.Run("MethodOptions", func(t *testing.T) {
+		rr := httptest.NewRecorder()
+		r, _ := http.NewRequest(http.MethodOptions, "/", nil)
+
+		r.Header.Set("Origin", "127.0.0.1")
+		r.Header.Set("Access-Control-Request-Method", "Test")
+
+		m := New()
+		m.SetCorsConfig([]string{"127.0.0.1"})
+
+		m.CORS(next).ServeHTTP(rr, r)
+
+		body := helpers.GetBody(t, rr.Result())
+
+		assert.Equal(t, body, "")
+		assert.Equal(t, rr.Result().StatusCode, http.StatusOK)
+	})
 }
 
 func TestMiddleware_Metrics(t *testing.T) {
@@ -147,6 +174,7 @@ func TestMiddleware_Metrics(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	m := New()
+
 	m.Metrics(next).ServeHTTP(rr, r)
 
 	body := helpers.GetBody(t, rr.Result())
@@ -159,21 +187,42 @@ func TestMiddleware_RateLimit(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	m := New()
+	m.SetRateLimitConfig(true, 2, 4)
+
 	m.RateLimit(next).ServeHTTP(rr, r)
 
 	body := helpers.GetBody(t, rr.Result())
 
 	assert.Equal(t, body, "OK")
+	//TODO: Test connection being limited
 }
 
 func TestMiddleware_RecoverPanic(t *testing.T) {
-	rr := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+	t.Run("No Panic", func(t *testing.T) {
+		rr := httptest.NewRecorder()
+		r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	m := New()
-	m.RecoverPanic(next).ServeHTTP(rr, r)
+		m := New()
 
-	body := helpers.GetBody(t, rr.Result())
+		m.RecoverPanic(next).ServeHTTP(rr, r)
 
-	assert.Equal(t, body, "OK")
+		body := helpers.GetBody(t, rr.Result())
+
+		assert.Equal(t, body, "OK")
+	})
+
+	t.Run("Panic", func(t *testing.T) {
+		rr := httptest.NewRecorder()
+		r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+		homeHandler := func(http.ResponseWriter, *http.Request) { panic("test error") }
+
+		m := New()
+
+		m.RecoverPanic(homeHandler).ServeHTTP(rr, r)
+
+		body := helpers.GetBody(t, rr.Result())
+
+		assert.Contains(t, body, "the server encountered a problem and could not process your json")
+	})
 }
