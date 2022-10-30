@@ -6,12 +6,12 @@ import (
 
 func TestNew(t *testing.T) {
 	_, err := New(Config{
-		dsn:                   "postgresql://testing",
-		minConns:              30,
-		maxConns:              30,
-		maxConnLifetime:       "60m",
-		maxConnLifetimeJitter: "5s",
-		maxConnIdleTime:       "30m",
+		DSN:                   "postgresql://testing",
+		MinConns:              30,
+		MaxConns:              30,
+		MaxConnLifetime:       "60m",
+		MaxConnLifetimeJitter: "5s",
+		MaxConnIdleTime:       "30m",
 	})
 	if err != nil {
 		t.Fatal(err)

@@ -20,18 +20,18 @@ import (
 
 type (
 	AuthenticateConfig struct {
-		jwksURL string
-		apiURL  string
+		JWKSURL string
+		APIURL  string
 	}
 
 	CorsConfig struct {
-		trustedOrigins []string
+		TrustedOrigins []string
 	}
 
 	RateLimitConfig struct {
-		enabled bool
-		rps     float64
-		burst   int
+		Enabled bool
+		Rps     float64
+		Burst   int
 	}
 
 	Middleware struct {
@@ -46,18 +46,18 @@ func New() *Middleware {
 }
 
 func (m *Middleware) SetAuthenticateConfig(jwksURL, apiURL string) {
-	m.authenticate.jwksURL = jwksURL
-	m.authenticate.apiURL = apiURL
+	m.authenticate.JWKSURL = jwksURL
+	m.authenticate.APIURL = apiURL
 }
 
 func (m *Middleware) SetCorsConfig(trustedOrigins []string) {
-	m.cors.trustedOrigins = trustedOrigins
+	m.cors.TrustedOrigins = trustedOrigins
 }
 
 func (m *Middleware) SetRateLimitConfig(enabled bool, rps float64, burst int) {
-	m.rateLimit.enabled = enabled
-	m.rateLimit.rps = rps
-	m.rateLimit.burst = burst
+	m.rateLimit.Enabled = enabled
+	m.rateLimit.Rps = rps
+	m.rateLimit.Burst = burst
 }
 
 func (m *Middleware) Chain(constructors ...alice.Constructor) alice.Chain {
@@ -77,7 +77,7 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 				return
 			}
 
-			jwks, err := keyfunc.Get(m.authenticate.jwksURL, keyfunc.Options{})
+			jwks, err := keyfunc.Get(m.authenticate.JWKSURL, keyfunc.Options{})
 			if err != nil {
 				errors.InvalidAuthenticationToken(w, r)
 				return
@@ -98,12 +98,12 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 				return
 			}
 
-			if !claims.VerifyAudience(m.authenticate.apiURL, false) {
+			if !claims.VerifyAudience(m.authenticate.APIURL, false) {
 				errors.InvalidAuthenticationToken(w, r)
 				return
 			}
 
-			issuer := strings.TrimRight(m.authenticate.jwksURL, "/jwks")
+			issuer := strings.TrimRight(m.authenticate.JWKSURL, "/jwks")
 
 			if !claims.VerifyIssuer(issuer, false) {
 				errors.InvalidAuthenticationToken(w, r)
@@ -138,8 +138,8 @@ func (m *Middleware) CORS(next http.Handler) http.Handler {
 		origin := r.Header.Get("Origin")
 
 		if origin != "" {
-			for i := range m.cors.trustedOrigins {
-				if origin == m.cors.trustedOrigins[i] {
+			for i := range m.cors.TrustedOrigins {
+				if origin == m.cors.TrustedOrigins[i] {
 					w.Header().Set("Access-Control-Allow-Origin", origin)
 
 					if r.Method == http.MethodOptions && r.Header.Get("Access-Control-Request-Method") != "" {
@@ -203,14 +203,14 @@ func (m *Middleware) RateLimit(next http.Handler) http.Handler {
 	}()
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if m.rateLimit.enabled {
+		if m.rateLimit.Enabled {
 			ip := realip.FromRequest(r)
 
 			mu.Lock()
 
 			if _, found := clients[ip]; !found {
 				clients[ip] = &client{
-					limiter: rate.NewLimiter(rate.Limit(m.rateLimit.rps), m.rateLimit.burst),
+					limiter: rate.NewLimiter(rate.Limit(m.rateLimit.Rps), m.rateLimit.Burst),
 				}
 			}
 
