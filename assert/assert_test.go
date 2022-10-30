@@ -100,6 +100,100 @@ func TestEqual(t *testing.T) {
 	}
 }
 
+func TestNotEqual(t *testing.T) {
+	testsNums := []struct {
+		a float32
+		e float32
+		r bool
+	}{
+		{
+			0,
+			0,
+			false,
+		},
+		{
+			200,
+			200,
+			false,
+		},
+		{
+			201,
+			200,
+			true,
+		},
+		{
+			200.0,
+			200.0,
+			false,
+		},
+		{
+			200.1,
+			200.0,
+			true,
+		},
+		{
+			-200,
+			-200,
+			false,
+		},
+		{
+			-201,
+			-200,
+			true,
+		},
+		{
+			-200.0,
+			-200.0,
+			false,
+		},
+		{
+			-200.1,
+			-200.0,
+			true,
+		},
+	}
+
+	for _, tt := range testsNums {
+		t.Run(fmt.Sprintf("%#v", tt.a), func(t *testing.T) {
+			res := NotEqual(new(testing.T), tt.a, tt.e)
+			if res != tt.r {
+				t.Errorf("NotEqual(%#v, %#v) should return %#v", tt.a, tt.e, tt.r)
+			}
+		})
+	}
+
+	testsStrings := []struct {
+		a string
+		e string
+		r bool
+	}{
+		{
+			"123",
+			"123",
+			false,
+		},
+		{
+			"124",
+			"123",
+			true,
+		},
+		{
+			"",
+			"",
+			false,
+		},
+	}
+
+	for _, tt := range testsStrings {
+		t.Run(fmt.Sprintf("%#v", tt.a), func(t *testing.T) {
+			res := NotEqual(new(testing.T), tt.a, tt.e)
+			if res != tt.r {
+				t.Errorf("NotEqual(%#v, %#v) should return %#v", tt.a, tt.e, tt.r)
+			}
+		})
+	}
+}
+
 func TestSameType(t *testing.T) {
 	t.Run("String", func(t *testing.T) {
 		res := SameType(new(testing.T), "foo", "bar")
@@ -158,6 +252,39 @@ func TestContains(t *testing.T) {
 			res := Contains(new(testing.T), tt.a, tt.e)
 			if res != tt.r {
 				t.Errorf("Contains(%#v, %#v) should return %#v", tt.a, tt.e, tt.r)
+			}
+		})
+	}
+}
+
+func TestNotContains(t *testing.T) {
+	tests := []struct {
+		a string
+		e string
+		r bool
+	}{
+		{
+			"this is a test",
+			"test",
+			false,
+		},
+		{
+			"this is a",
+			"test",
+			true,
+		},
+		{
+			"",
+			"",
+			false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(fmt.Sprintf("%#v", tt.e), func(t *testing.T) {
+			res := NotContains(new(testing.T), tt.a, tt.e)
+			if res != tt.r {
+				t.Errorf("NotContains(%#v, %#v) should return %#v", tt.a, tt.e, tt.r)
 			}
 		})
 	}

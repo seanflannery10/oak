@@ -9,9 +9,20 @@ import (
 	"testing"
 )
 
-var next = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+var next = http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("OK"))
-})
+}))
+
+func TestMiddleware_Chain(t *testing.T) {
+	rr := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	m := New()
+	m.Chain(m.RecoverPanic).Then(next).ServeHTTP(rr, r)
+
+	assert.Contains(t, rr.Body.String(), "OK")
+	assert.Equal(t, rr.Code, http.StatusOK)
+}
 
 func TestMiddleware_Authenticate(t *testing.T) {
 	tests := []struct {
@@ -121,7 +132,6 @@ func TestMiddleware_RequireAuthenticatedUser(t *testing.T) {
 		assert.Equal(t, rr.Body.String(), "OK")
 		assert.Equal(t, rr.Code, http.StatusOK)
 	})
-
 }
 
 func TestMiddleware_CORS(t *testing.T) {
@@ -197,7 +207,7 @@ func TestMiddleware_RecoverPanic(t *testing.T) {
 		rr := httptest.NewRecorder()
 		r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-		homeHandler := func(http.ResponseWriter, *http.Request) { panic("test error") }
+		homeHandler := http.HandlerFunc(func(http.ResponseWriter, *http.Request) { panic("test error") })
 
 		m := New()
 

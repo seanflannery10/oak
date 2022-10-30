@@ -10,6 +10,7 @@ import (
 
 func TestNew(t *testing.T) {
 	srv := New("test", nil)
+	srv.Background(func() {})
 
 	assert.Equal(t, srv.Addr, "test")
 	assert.SameType(t, srv, &Server{})

@@ -72,7 +72,7 @@ func (s *Server) Run() error {
 	return nil
 }
 
-func (s *Server) background(fn func()) {
+func (s *Server) Background(fn func()) {
 	s.wg.Add(1)
 
 	go func() {

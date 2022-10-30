@@ -58,8 +58,8 @@ func (m *Middleware) Chain(constructors ...alice.Constructor) alice.Chain {
 	return alice.New(constructors...)
 }
 
-func (m *Middleware) Authenticate(next http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func (m *Middleware) Authenticate(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Vary", "Authorization")
 
 		authorizationHeader := r.Header.Get("Authorization")
@@ -107,12 +107,12 @@ func (m *Middleware) Authenticate(next http.HandlerFunc) http.HandlerFunc {
 			r = context.SetAuthenticatedUser(r, claims.Subject)
 		}
 
-		next(w, r)
-	}
+		next.ServeHTTP(w, r)
+	})
 }
 
-func (m *Middleware) RequireAuthenticatedUser(next http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func (m *Middleware) RequireAuthenticatedUser(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authenticatedUser := context.GetAuthenticatedUser(r)
 
 		if authenticatedUser == "" {
@@ -120,12 +120,12 @@ func (m *Middleware) RequireAuthenticatedUser(next http.HandlerFunc) http.Handle
 			return
 		}
 
-		next(w, r)
-	}
+		next.ServeHTTP(w, r)
+	})
 }
 
-func (m *Middleware) CORS(next http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func (m *Middleware) CORS(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Vary", "Origin")
 		w.Header().Add("Vary", "Access-Control-Request-Method")
 
@@ -149,27 +149,27 @@ func (m *Middleware) CORS(next http.HandlerFunc) http.HandlerFunc {
 			}
 		}
 
-		next(w, r)
-	}
+		next.ServeHTTP(w, r)
+	})
 }
 
-func (m *Middleware) Metrics(next http.HandlerFunc) http.HandlerFunc {
+func (m *Middleware) Metrics(next http.Handler) http.Handler {
 	totalRequestsReceived := expvar.NewInt("total_requests_received")
 	totalResponsesSent := expvar.NewInt("total_responses_sent")
 	totalProcessingTimeMicroseconds := expvar.NewInt("total_processing_time_μs")
 	totalResponsesSentByStatus := expvar.NewMap("total_responses_sent_by_status")
 
-	return func(w http.ResponseWriter, r *http.Request) {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		metrics := httpsnoop.CaptureMetrics(next, w, r)
 
 		totalRequestsReceived.Add(1)
 		totalResponsesSent.Add(1)
 		totalProcessingTimeMicroseconds.Add(metrics.Duration.Microseconds())
 		totalResponsesSentByStatus.Add(strconv.Itoa(metrics.Code), 1)
-	}
+	})
 }
 
-func (m *Middleware) RateLimit(next http.HandlerFunc) http.HandlerFunc {
+func (m *Middleware) RateLimit(next http.Handler) http.Handler {
 	type client struct {
 		limiter  *rate.Limiter
 		lastSeen time.Time
@@ -196,7 +196,7 @@ func (m *Middleware) RateLimit(next http.HandlerFunc) http.HandlerFunc {
 		}
 	}()
 
-	return func(w http.ResponseWriter, r *http.Request) {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if m.rateLimit.enabled {
 			ip := realip.FromRequest(r)
 
@@ -219,18 +219,18 @@ func (m *Middleware) RateLimit(next http.HandlerFunc) http.HandlerFunc {
 			mu.Unlock()
 		}
 
-		next(w, r)
-	}
+		next.ServeHTTP(w, r)
+	})
 }
 
-func (m *Middleware) RecoverPanic(next http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func (m *Middleware) RecoverPanic(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if err := recover(); err != nil {
 				errors.ServerError(w, r, fmt.Errorf("%s", err))
 			}
 		}()
 
-		next(w, r)
-	}
+		next.ServeHTTP(w, r)
+	})
 }
