@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/seanflannery10/ossa/assert"
-	"github.com/seanflannery10/ossa/helpers"
 	"github.com/seanflannery10/ossa/validator"
 	"net/http"
 	"net/http/httptest"
@@ -19,7 +18,7 @@ func TestErrorMessage(t *testing.T) {
 		{200, "testing status code 200"},
 		{401, "testing status code 401"},
 		{404, "testing status code 404"},
-		{500, "testing status code 500"},
+		{500, "testing status coOde 500"},
 	}
 
 	for _, tt := range tests {
@@ -33,9 +32,7 @@ func TestErrorMessage(t *testing.T) {
 
 			ErrorMessage(rr, r, tt.sc, tt.body)
 
-			body := helpers.GetBody(t, rr.Result())
-
-			assert.Contains(t, body, tt.body)
+			assert.Contains(t, rr.Body.String(), tt.body)
 			assert.Equal(t, rr.Result().StatusCode, tt.sc)
 		})
 	}

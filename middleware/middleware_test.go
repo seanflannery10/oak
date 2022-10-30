@@ -3,7 +3,6 @@ package middleware
 import (
 	"github.com/seanflannery10/ossa/assert"
 	"github.com/seanflannery10/ossa/context"
-	"github.com/seanflannery10/ossa/helpers"
 	"net"
 	"net/http"
 	"net/http/httptest"
@@ -90,12 +89,9 @@ func TestMiddleware_Authenticate(t *testing.T) {
 
 			m.Authenticate(next).ServeHTTP(rr, r)
 
-			res := rr.Result()
-			body := helpers.GetBody(t, res)
-
-			assert.Equal(t, res.Header.Get("Vary"), "Authorization")
-			assert.Contains(t, body, tt.body)
-			assert.Equal(t, res.StatusCode, tt.code)
+			assert.Equal(t, rr.Header().Get("Vary"), "Authorization")
+			assert.Contains(t, rr.Body.String(), tt.body)
+			assert.Equal(t, rr.Code, tt.code)
 		})
 	}
 }
@@ -109,10 +105,8 @@ func TestMiddleware_RequireAuthenticatedUser(t *testing.T) {
 
 		m.RequireAuthenticatedUser(next).ServeHTTP(rr, r)
 
-		body := helpers.GetBody(t, rr.Result())
-
-		assert.Contains(t, body, "you must be authenticated to access this resource")
-		assert.Equal(t, rr.Result().StatusCode, http.StatusUnauthorized)
+		assert.Contains(t, rr.Body.String(), "you must be authenticated to access this resource")
+		assert.Equal(t, rr.Code, http.StatusUnauthorized)
 	})
 
 	t.Run("Good Auth", func(t *testing.T) {
@@ -124,10 +118,8 @@ func TestMiddleware_RequireAuthenticatedUser(t *testing.T) {
 
 		m.RequireAuthenticatedUser(next).ServeHTTP(rr, r)
 
-		body := helpers.GetBody(t, rr.Result())
-
-		assert.Equal(t, body, "OK")
-		assert.Equal(t, rr.Result().StatusCode, http.StatusOK)
+		assert.Equal(t, rr.Body.String(), "OK")
+		assert.Equal(t, rr.Code, http.StatusOK)
 	})
 
 }
@@ -144,10 +136,8 @@ func TestMiddleware_CORS(t *testing.T) {
 
 		m.CORS(next).ServeHTTP(rr, r)
 
-		body := helpers.GetBody(t, rr.Result())
-
-		assert.Equal(t, body, "OK")
-		assert.Equal(t, rr.Result().StatusCode, http.StatusOK)
+		assert.Equal(t, rr.Body.String(), "OK")
+		assert.Equal(t, rr.Code, http.StatusOK)
 	})
 
 	t.Run("MethodOptions", func(t *testing.T) {
@@ -162,10 +152,8 @@ func TestMiddleware_CORS(t *testing.T) {
 
 		m.CORS(next).ServeHTTP(rr, r)
 
-		body := helpers.GetBody(t, rr.Result())
-
-		assert.Equal(t, body, "")
-		assert.Equal(t, rr.Result().StatusCode, http.StatusOK)
+		assert.Equal(t, rr.Body.String(), "")
+		assert.Equal(t, rr.Code, http.StatusOK)
 	})
 }
 
@@ -177,9 +165,7 @@ func TestMiddleware_Metrics(t *testing.T) {
 
 	m.Metrics(next).ServeHTTP(rr, r)
 
-	body := helpers.GetBody(t, rr.Result())
-
-	assert.Equal(t, body, "OK")
+	assert.Equal(t, rr.Body.String(), "OK")
 }
 
 func TestMiddleware_RateLimit(t *testing.T) {
@@ -191,9 +177,7 @@ func TestMiddleware_RateLimit(t *testing.T) {
 
 	m.RateLimit(next).ServeHTTP(rr, r)
 
-	body := helpers.GetBody(t, rr.Result())
-
-	assert.Equal(t, body, "OK")
+	assert.Equal(t, rr.Body.String(), "OK")
 	//TODO: Test connection being limited
 }
 
@@ -206,9 +190,7 @@ func TestMiddleware_RecoverPanic(t *testing.T) {
 
 		m.RecoverPanic(next).ServeHTTP(rr, r)
 
-		body := helpers.GetBody(t, rr.Result())
-
-		assert.Equal(t, body, "OK")
+		assert.Equal(t, rr.Body.String(), "OK")
 	})
 
 	t.Run("Panic", func(t *testing.T) {
@@ -221,8 +203,6 @@ func TestMiddleware_RecoverPanic(t *testing.T) {
 
 		m.RecoverPanic(homeHandler).ServeHTTP(rr, r)
 
-		body := helpers.GetBody(t, rr.Result())
-
-		assert.Contains(t, body, "the server encountered a problem and could not process your json")
+		assert.Contains(t, rr.Body.String(), "the server encountered a problem and could not process your json")
 	})
 }

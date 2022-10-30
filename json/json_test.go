@@ -69,6 +69,27 @@ func TestDecode(t *testing.T) {
 			assert.Contains(t, err.Error(), tt.e)
 		})
 	}
+
+	t.Run("Good", func(t *testing.T) {
+		rr := httptest.NewRecorder()
+
+		json := strings.NewReader(`{"int": 123}`)
+
+		r, err := http.NewRequest(http.MethodGet, "/", json)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		var testData struct {
+			String string `a:"string"`
+			Int    int    `a:"int"`
+		}
+
+		err = Decode(rr, r, &testData)
+		if err != nil {
+			t.Fatal(err)
+		}
+	})
 }
 
 func TestEncode(t *testing.T) {
