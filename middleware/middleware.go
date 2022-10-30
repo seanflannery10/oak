@@ -30,7 +30,7 @@ type (
 
 	RateLimitConfig struct {
 		Enabled bool
-		Rps     float64
+		RPS     float64
 		Burst   int
 	}
 
@@ -56,7 +56,7 @@ func (m *Middleware) SetCorsConfig(trustedOrigins []string) {
 
 func (m *Middleware) SetRateLimitConfig(enabled bool, rps float64, burst int) {
 	m.rateLimit.Enabled = enabled
-	m.rateLimit.Rps = rps
+	m.rateLimit.RPS = rps
 	m.rateLimit.Burst = burst
 }
 
@@ -210,7 +210,7 @@ func (m *Middleware) RateLimit(next http.Handler) http.Handler {
 
 			if _, found := clients[ip]; !found {
 				clients[ip] = &client{
-					limiter: rate.NewLimiter(rate.Limit(m.rateLimit.Rps), m.rateLimit.Burst),
+					limiter: rate.NewLimiter(rate.Limit(m.rateLimit.RPS), m.rateLimit.Burst),
 				}
 			}
 
