@@ -3,7 +3,6 @@ package json
 import (
 	"fmt"
 	"github.com/seanflannery10/ossa/assert"
-	"github.com/seanflannery10/ossa/helpers"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -120,15 +119,12 @@ func TestEncode(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			res := rr.Result()
-			body := helpers.GetBody(t, res)
-
-			bodyString := strings.TrimSuffix(body, "\"\n")
+			bodyString := strings.TrimSuffix(rr.Body.String(), "\"\n")
 			bodyString = strings.TrimPrefix(bodyString, "\"")
 
 			assert.Equal(t, bodyString, tt.s)
-			assert.Equal(t, res.Header.Get("Content-Type"), "application/a")
-			assert.Equal(t, res.StatusCode, tt.c)
+			assert.Equal(t, rr.Header().Get("Content-Type"), "application/a")
+			assert.Equal(t, rr.Code, tt.c)
 		})
 	}
 }
@@ -168,16 +164,13 @@ func TestEncodeWithHeaders(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			res := rr.Result()
-			body := helpers.GetBody(t, res)
-
-			bodyString := strings.TrimSuffix(body, "\"\n")
+			bodyString := strings.TrimSuffix(rr.Body.String(), "\"\n")
 			bodyString = strings.TrimPrefix(bodyString, "\"")
 
 			assert.Equal(t, bodyString, tt.s)
-			assert.Equal(t, res.Header.Get("Content-Type"), "application/a")
-			assert.Equal(t, res.Header.Get("X-Request-Id"), tt.h)
-			assert.Equal(t, res.StatusCode, tt.c)
+			assert.Equal(t, rr.Header().Get("Content-Type"), "application/a")
+			assert.Equal(t, rr.Header().Get("X-Request-Id"), tt.h)
+			assert.Equal(t, rr.Code, tt.c)
 		})
 	}
 }
