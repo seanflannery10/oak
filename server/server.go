@@ -23,7 +23,6 @@ func New(addr string, handler http.Handler) *Server {
 		&http.Server{
 			Addr:         addr,
 			Handler:      handler,
-			ErrorLog:     log.GlobalLogger,
 			IdleTimeout:  time.Minute,
 			ReadTimeout:  10 * time.Second,
 			WriteTimeout: 30 * time.Second,

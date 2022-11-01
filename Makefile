@@ -15,3 +15,8 @@ coverage:
 	go test -coverprofile=coverage.out ./...
 	go tool cover -html=coverage.out
 	rm coverage.out
+
+## audit: run quality control checks
+.PHONY: upgrade
+upgrade:
+	go get -u ./...

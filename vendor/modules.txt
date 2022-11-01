@@ -13,7 +13,7 @@ github.com/jackc/pgpassfile
 # github.com/jackc/pgservicefile v0.0.0-20200714003250-2b9c44734f2b
 ## explicit; go 1.14
 github.com/jackc/pgservicefile
-# github.com/jackc/pgx/v5 v5.0.2
+# github.com/jackc/pgx/v5 v5.0.4
 ## explicit; go 1.18
 github.com/jackc/pgx/v5
 github.com/jackc/pgx/v5/internal/anynil
@@ -27,9 +27,10 @@ github.com/jackc/pgx/v5/pgconn/internal/ctxwatch
 github.com/jackc/pgx/v5/pgproto3
 github.com/jackc/pgx/v5/pgtype
 github.com/jackc/pgx/v5/pgxpool
-# github.com/jackc/puddle/v2 v2.0.0
-## explicit; go 1.18
+# github.com/jackc/puddle/v2 v2.1.0
+## explicit; go 1.19
 github.com/jackc/puddle/v2
+github.com/jackc/puddle/v2/internal/genstack
 # github.com/julienschmidt/httprouter v1.3.0
 ## explicit; go 1.7
 github.com/julienschmidt/httprouter
@@ -39,13 +40,16 @@ github.com/justinas/alice
 # github.com/tomasen/realip v0.0.0-20180522021738-f0c99a92ddce
 ## explicit
 github.com/tomasen/realip
-# golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90
+# golang.org/x/crypto v0.1.0
 ## explicit; go 1.17
 golang.org/x/crypto/pbkdf2
-# golang.org/x/exp v0.0.0-20221002003631-540bb7301a08
+# golang.org/x/exp v0.0.0-20221031165847-c99f073a8326
 ## explicit; go 1.18
 golang.org/x/exp/constraints
-# golang.org/x/text v0.3.7
+# golang.org/x/sync v0.1.0
+## explicit
+golang.org/x/sync/semaphore
+# golang.org/x/text v0.4.0
 ## explicit; go 1.17
 golang.org/x/text/cases
 golang.org/x/text/internal
@@ -60,6 +64,6 @@ golang.org/x/text/transform
 golang.org/x/text/unicode/bidi
 golang.org/x/text/unicode/norm
 golang.org/x/text/width
-# golang.org/x/time v0.0.0-20220922220347-f3bd1da661af
+# golang.org/x/time v0.1.0
 ## explicit
 golang.org/x/time/rate
