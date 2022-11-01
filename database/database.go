@@ -52,7 +52,7 @@ func New(cfg Config) (*pgxpool.Pool, error) {
 	}
 	defer pool.Close()
 
-	log.Info("database connection pool established", nil)
+	log.Info("database connection pool established")
 
 	return pool, nil
 }
