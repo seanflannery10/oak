@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/seanflannery10/ossa/log"
 	"time"
 )
 
@@ -51,5 +52,6 @@ func New(cfg Config) (*pgxpool.Pool, error) {
 	}
 	defer pool.Close()
 
+	log.Info("database connection pool established", nil)
 	return pool, nil
 }
