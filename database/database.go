@@ -2,7 +2,7 @@ package database
 
 import (
 	"context"
-	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/seanflannery10/ossa/log"
 	"time"
 )
@@ -46,7 +46,7 @@ func New(cfg Config) (*pgxpool.Pool, error) {
 
 	config.MaxConnIdleTime = maxConnIdleTime
 
-	pool, err := pgxpool.NewWithConfig(context.Background(), config)
+	pool, err := pgxpool.ConnectConfig(context.Background(), config)
 	if err != nil {
 		return nil, err
 	}
