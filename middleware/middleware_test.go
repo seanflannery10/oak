@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"github.com/seanflannery10/ossa/assert"
-	"github.com/seanflannery10/ossa/context"
+	"github.com/seanflannery10/ossa/auth"
 	"net"
 	"net/http"
 	"net/http/httptest"
@@ -123,7 +123,7 @@ func TestMiddleware_RequireAuthenticatedUser(t *testing.T) {
 	t.Run("Good Auth", func(t *testing.T) {
 		rr := httptest.NewRecorder()
 		r, _ := http.NewRequest(http.MethodGet, "/", nil)
-		r = context.SetAuthenticatedUser(r, "Test")
+		r = auth.SetUser(r, "Test")
 
 		m := New()
 

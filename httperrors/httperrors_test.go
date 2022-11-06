@@ -1,4 +1,4 @@
-package errors
+package httperrors
 
 import (
 	"errors"
@@ -46,7 +46,7 @@ func TestFailedValidation(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	FailedValidation(rr, r, validator.Validator{})
+	FailedValidation(rr, r, &validator.Validator{})
 
 	assert.Equal(t, rr.Result().StatusCode, http.StatusUnprocessableEntity)
 }

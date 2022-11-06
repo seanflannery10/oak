@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"github.com/seanflannery10/ossa/errors"
+	"github.com/seanflannery10/ossa/httperrors"
 	"github.com/seanflannery10/ossa/json"
 	"github.com/seanflannery10/ossa/version"
 	"net/http"
@@ -17,6 +17,6 @@ func Healthcheck(w http.ResponseWriter, r *http.Request) {
 
 	err := json.Encode(w, http.StatusOK, env)
 	if err != nil {
-		errors.ServerError(w, r, err)
+		httperrors.ServerError(w, r, err)
 	}
 }

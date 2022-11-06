@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/seanflannery10/ossa/log"
+	"github.com/seanflannery10/ossa/logger"
 	"net/http"
 	"os"
 	"os/signal"
@@ -39,7 +39,7 @@ func (s *Server) Run() error {
 		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 		sig := <-quit
 
-		log.Info("caught signal %s", sig.String())
+		logger.Info("caught signal %s", sig.String())
 
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
@@ -49,13 +49,13 @@ func (s *Server) Run() error {
 			shutdownError <- err
 		}
 
-		log.Info("completing background tasks on %s", s.Addr)
+		logger.Info("completing background tasks on %s", s.Addr)
 
 		s.wg.Wait()
 		shutdownError <- nil
 	}()
 
-	log.Info("starting server on %s", s.Addr)
+	logger.Info("starting server on %s", s.Addr)
 
 	err := s.ListenAndServe()
 	if !errors.Is(err, http.ErrServerClosed) {
@@ -67,7 +67,7 @@ func (s *Server) Run() error {
 		return err
 	}
 
-	log.Info("server stopped on %s", s.Addr)
+	logger.Info("server stopped on %s", s.Addr)
 
 	return nil
 }
@@ -80,7 +80,7 @@ func (s *Server) Background(fn func()) {
 
 		defer func() {
 			if err := recover(); err != nil {
-				log.Error(fmt.Errorf("%s", err), nil)
+				logger.Error(fmt.Errorf("%s", err), nil)
 			}
 		}()
 

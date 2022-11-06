@@ -7,8 +7,8 @@ import (
 	"github.com/felixge/httpsnoop"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/justinas/alice"
-	"github.com/seanflannery10/ossa/context"
-	"github.com/seanflannery10/ossa/errors"
+	"github.com/seanflannery10/ossa/auth"
+	"github.com/seanflannery10/ossa/httperrors"
 	"github.com/tomasen/realip"
 	"golang.org/x/time/rate"
 	"net/http"
@@ -73,13 +73,13 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 		if authorizationHeader != "" {
 			headerParts := strings.Split(authorizationHeader, " ")
 			if len(headerParts) != 2 || headerParts[0] != "Bearer" {
-				errors.InvalidAuthenticationToken(w, r)
+				httperrors.InvalidAuthenticationToken(w, r)
 				return
 			}
 
 			jwks, err := keyfunc.Get(m.authenticate.JWKSURL, keyfunc.Options{})
 			if err != nil {
-				errors.InvalidAuthenticationToken(w, r)
+				httperrors.InvalidAuthenticationToken(w, r)
 				return
 			}
 
@@ -87,30 +87,30 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 
 			token, err := jwt.ParseWithClaims(tokenString, &jwt.RegisteredClaims{}, jwks.Keyfunc)
 			if err != nil {
-				errors.InvalidAuthenticationToken(w, r)
+				httperrors.InvalidAuthenticationToken(w, r)
 				return
 			}
 
 			claims, ok := token.Claims.(*jwt.RegisteredClaims)
 
 			if !ok && !token.Valid {
-				errors.InvalidAuthenticationToken(w, r)
+				httperrors.InvalidAuthenticationToken(w, r)
 				return
 			}
 
 			if !claims.VerifyAudience(m.authenticate.APIURL, false) {
-				errors.InvalidAuthenticationToken(w, r)
+				httperrors.InvalidAuthenticationToken(w, r)
 				return
 			}
 
 			issuer := strings.TrimRight(m.authenticate.JWKSURL, "/jwks")
 
 			if !claims.VerifyIssuer(issuer, false) {
-				errors.InvalidAuthenticationToken(w, r)
+				httperrors.InvalidAuthenticationToken(w, r)
 				return
 			}
 
-			r = context.SetAuthenticatedUser(r, claims.Subject)
+			r = auth.SetUser(r, claims.Subject)
 		}
 
 		next.ServeHTTP(w, r)
@@ -119,10 +119,10 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 
 func (m *Middleware) RequireAuthenticatedUser(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		authenticatedUser := context.GetAuthenticatedUser(r)
+		authenticatedUser := auth.GetUser(r)
 
 		if authenticatedUser == "" {
-			errors.AuthenticationRequired(w, r)
+			httperrors.AuthenticationRequired(w, r)
 			return
 		}
 
@@ -218,7 +218,7 @@ func (m *Middleware) RateLimit(next http.Handler) http.Handler {
 
 			if !clients[ip].limiter.Allow() {
 				mu.Unlock()
-				errors.RateLimitExceededResponse(w, r)
+				httperrors.RateLimitExceededResponse(w, r)
 				return
 			}
 
@@ -233,7 +233,7 @@ func (m *Middleware) RecoverPanic(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if err := recover(); err != nil {
-				errors.ServerError(w, r, fmt.Errorf("%s", err))
+				httperrors.ServerError(w, r, fmt.Errorf("%s", err))
 			}
 		}()
 

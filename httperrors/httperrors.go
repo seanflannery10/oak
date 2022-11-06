@@ -1,9 +1,9 @@
-package errors
+package httperrors
 
 import (
 	"fmt"
 	"github.com/seanflannery10/ossa/json"
-	"github.com/seanflannery10/ossa/log"
+	"github.com/seanflannery10/ossa/logger"
 	"github.com/seanflannery10/ossa/validator"
 	"net/http"
 )
@@ -15,7 +15,7 @@ func ErrorMessage(w http.ResponseWriter, r *http.Request, status int, message st
 func ErrorMessageWithHeaders(w http.ResponseWriter, r *http.Request, status int, message string, headers http.Header) {
 	err := json.EncodeWithHeaders(w, status, map[string]string{"error": message}, headers)
 	if err != nil {
-		log.Error(err, map[string]string{
+		logger.Error(err, map[string]string{
 			"request_method": r.Method,
 			"request_url":    r.URL.String(),
 		})
@@ -24,7 +24,7 @@ func ErrorMessageWithHeaders(w http.ResponseWriter, r *http.Request, status int,
 }
 
 func ServerError(w http.ResponseWriter, r *http.Request, err error) {
-	log.Error(err, nil)
+	logger.Error(err, nil)
 
 	message := "the server encountered a problem and could not process your json"
 	ErrorMessage(w, r, http.StatusInternalServerError, message)
