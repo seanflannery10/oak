@@ -1,4 +1,4 @@
-package json
+package jsonutil
 
 import (
 	"fmt"
@@ -64,7 +64,7 @@ func TestDecode(t *testing.T) {
 				Int    int    `a:"int"`
 			}
 
-			err = Decode(rr, r, &testData)
+			err = Read(rr, r, &testData)
 			assert.Contains(t, err.Error(), tt.e)
 		})
 	}
@@ -84,7 +84,7 @@ func TestDecode(t *testing.T) {
 			Int    int    `a:"int"`
 		}
 
-		err = Decode(rr, r, &testData)
+		err = Read(rr, r, &testData)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -114,7 +114,7 @@ func TestEncode(t *testing.T) {
 		t.Run(fmt.Sprintf("%#v", tt.s), func(t *testing.T) {
 			rr := httptest.NewRecorder()
 
-			err := Encode(rr, tt.c, tt.s)
+			err := Write(rr, tt.c, tt.s)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -159,7 +159,7 @@ func TestEncodeWithHeaders(t *testing.T) {
 			headers := make(http.Header)
 			headers.Set("X-Request-Id", tt.h)
 
-			err := EncodeWithHeaders(rr, tt.c, tt.s, headers)
+			err := WriteWithHeaders(rr, tt.c, tt.s, headers)
 			if err != nil {
 				t.Fatal(err)
 			}

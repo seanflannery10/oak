@@ -2,7 +2,7 @@ package httperrors
 
 import (
 	"fmt"
-	"github.com/seanflannery10/ossa/json"
+	"github.com/seanflannery10/ossa/jsonutil"
 	"github.com/seanflannery10/ossa/logger"
 	"github.com/seanflannery10/ossa/validator"
 	"net/http"
@@ -13,7 +13,7 @@ func ErrorMessage(w http.ResponseWriter, r *http.Request, status int, message st
 }
 
 func ErrorMessageWithHeaders(w http.ResponseWriter, r *http.Request, status int, message string, headers http.Header) {
-	err := json.EncodeWithHeaders(w, status, map[string]string{"error": message}, headers)
+	err := jsonutil.WriteWithHeaders(w, status, map[string]string{"error": message}, headers)
 	if err != nil {
 		logger.Error(err, map[string]string{
 			"request_method": r.Method,
@@ -45,7 +45,7 @@ func BadRequest(w http.ResponseWriter, r *http.Request, err error) {
 }
 
 func FailedValidation(w http.ResponseWriter, r *http.Request, v *validator.Validator) {
-	err := json.Encode(w, http.StatusUnprocessableEntity, v)
+	err := jsonutil.Write(w, http.StatusUnprocessableEntity, v)
 	if err != nil {
 		ServerError(w, r, err)
 	}

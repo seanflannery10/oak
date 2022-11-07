@@ -1,4 +1,4 @@
-package json
+package jsonutil
 
 import (
 	"encoding/json"
@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-func Decode(w http.ResponseWriter, r *http.Request, dst interface{}) error {
+func Read(w http.ResponseWriter, r *http.Request, dst interface{}) error {
 	maxBytes := 1_048_576
 	r.Body = http.MaxBytesReader(w, r.Body, int64(maxBytes))
 
@@ -61,11 +61,11 @@ func Decode(w http.ResponseWriter, r *http.Request, dst interface{}) error {
 	return nil
 }
 
-func Encode(w http.ResponseWriter, status int, data any) error {
-	return EncodeWithHeaders(w, status, data, nil)
+func Write(w http.ResponseWriter, status int, data any) error {
+	return WriteWithHeaders(w, status, data, nil)
 }
 
-func EncodeWithHeaders(w http.ResponseWriter, status int, data any, headers http.Header) error {
+func WriteWithHeaders(w http.ResponseWriter, status int, data any, headers http.Header) error {
 	js, err := json.MarshalIndent(data, "", "\t")
 	if err != nil {
 		return err
