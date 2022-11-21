@@ -46,11 +46,13 @@ func New(cfg Config) (*pgxpool.Pool, error) {
 
 	config.MaxConnIdleTime = maxConnIdleTime
 
-	pool, err := pgxpool.ConnectConfig(context.Background(), config)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	pool, err := pgxpool.ConnectConfig(ctx, config)
 	if err != nil {
 		return nil, err
 	}
-	defer pool.Close()
 
 	logger.Info("database connection pool established")
 
