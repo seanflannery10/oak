@@ -49,7 +49,7 @@ func Int(r *http.Request, key string, defaultValue int, v *validator.Validator) 
 
 	i, err := strconv.Atoi(s)
 	if err != nil {
-		v.AddError(key, "must be an integer value")
+		v.AddFieldError(key, "must be an integer value")
 		return defaultValue
 	}
 

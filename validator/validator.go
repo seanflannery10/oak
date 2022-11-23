@@ -1,7 +1,7 @@
 package validator
 
 type Validator struct {
-	Errors      map[string]string `json:",omitempty"`
+	Errors      []string          `json:",omitempty"`
 	FieldErrors map[string]string `json:",omitempty"`
 }
 
@@ -9,14 +9,12 @@ func (v *Validator) HasErrors() bool {
 	return len(v.Errors) != 0 || len(v.FieldErrors) != 0
 }
 
-func (v *Validator) AddError(key, message string) {
+func (v *Validator) AddError(message string) {
 	if v.Errors == nil {
-		v.Errors = map[string]string{}
+		v.Errors = []string{}
 	}
 
-	if _, exists := v.Errors[key]; !exists {
-		v.Errors[key] = message
-	}
+	v.Errors = append(v.Errors, message)
 }
 
 func (v *Validator) AddFieldError(key, message string) {
@@ -29,9 +27,9 @@ func (v *Validator) AddFieldError(key, message string) {
 	}
 }
 
-func (v *Validator) Check(ok bool, key, message string) {
+func (v *Validator) Check(ok bool, message string) {
 	if !ok {
-		v.AddError(key, message)
+		v.AddError(message)
 	}
 }
 
