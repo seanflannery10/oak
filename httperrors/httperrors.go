@@ -23,6 +23,17 @@ func ErrorMessageWithHeaders(w http.ResponseWriter, r *http.Request, status int,
 	}
 }
 
+func FailedValidation(w http.ResponseWriter, r *http.Request, v *validator.Validator) {
+	err := jsonutil.Write(w, http.StatusUnprocessableEntity, map[string]map[string]string{"error": v.Errors})
+	if err != nil {
+		logger.Error(err, map[string]string{
+			"request_method": r.Method,
+			"request_url":    r.URL.String(),
+		})
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+}
+
 func ServerError(w http.ResponseWriter, r *http.Request, err error) {
 	logger.Error(err, nil)
 
@@ -42,13 +53,6 @@ func MethodNotAllowed(w http.ResponseWriter, r *http.Request) {
 
 func BadRequest(w http.ResponseWriter, r *http.Request, err error) {
 	ErrorMessage(w, r, http.StatusBadRequest, err.Error())
-}
-
-func FailedValidation(w http.ResponseWriter, r *http.Request, v *validator.Validator) {
-	err := jsonutil.Write(w, http.StatusUnprocessableEntity, v)
-	if err != nil {
-		ServerError(w, r, err)
-	}
 }
 
 func InvalidAuthenticationToken(w http.ResponseWriter, r *http.Request) {
