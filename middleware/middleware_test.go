@@ -10,7 +10,10 @@ import (
 )
 
 var next = http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("OK"))
+	_, err := w.Write([]byte("OK"))
+	if err != nil {
+		return
+	}
 }))
 
 func TestMiddleware_Chain(t *testing.T) {
@@ -81,7 +84,10 @@ func TestMiddleware_Authenticate(t *testing.T) {
 
 			srv := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusOK)
-				w.Write([]byte(tt.jwks))
+				_, err := w.Write([]byte(tt.jwks))
+				if err != nil {
+					return
+				}
 			}))
 
 			srv.Listener.Close()

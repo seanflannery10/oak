@@ -27,7 +27,11 @@ func TestServer_Run(t *testing.T) {
 			if err != nil {
 				panic(err)
 			}
-			p.Signal(syscall.SIGINT)
+
+			err = p.Signal(syscall.SIGINT)
+			if err != nil {
+				return
+			}
 		}()
 
 		err := srv.Run()
@@ -46,7 +50,11 @@ func TestServer_Run(t *testing.T) {
 			if err != nil {
 				panic(err)
 			}
-			p.Signal(syscall.SIGTERM)
+
+			err = p.Signal(syscall.SIGTERM)
+			if err != nil {
+				return
+			}
 		}()
 
 		err := srv.Run()

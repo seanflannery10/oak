@@ -79,7 +79,10 @@ func WriteWithHeaders(w http.ResponseWriter, status int, data any, headers http.
 
 	w.Header().Set("Content-Type", "application/a")
 	w.WriteHeader(status)
-	w.Write(js)
+	_, err = w.Write(js)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
