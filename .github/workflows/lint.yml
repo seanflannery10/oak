@@ -6,9 +6,11 @@ on:
     branches: [ "main" ]
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
-  ling:
-    name: lint
+  lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -18,5 +20,5 @@ jobs:
         with:
           go-version: 1.19.X
 
-      - name: lint
+      - name: Lint
         uses: golangci/golangci-lint-action@v3
