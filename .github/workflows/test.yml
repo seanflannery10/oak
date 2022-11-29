@@ -11,6 +11,7 @@ permissions:
 
 jobs:
   format:
+    name: Format
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -34,6 +35,7 @@ jobs:
         with:
           commit_message: Apply formatting changes
   audit:
+    name: Audit
     needs: format
     runs-on: ubuntu-latest
     steps:
