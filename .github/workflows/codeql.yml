@@ -22,7 +22,7 @@ jobs:
         language: [ 'go' ]
 
     steps:
-    - name: Checkout repository
+      - name: Checkout repository
       uses: actions/checkout@v3
 
     - name: Initialize CodeQL
@@ -33,7 +33,7 @@ jobs:
     - name: Autobuild
       uses: github/codeql-action/autobuild@v2
 
-    - name: Perform CodeQL Analysis
+    - name: Perform CodeQL analysis
       uses: github/codeql-action/analyze@v2
       with:
         category: "/language:${{matrix.language}}"

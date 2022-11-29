@@ -13,7 +13,8 @@ jobs:
   format:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
         with:
           ref: ${{ github.head_ref }}
 
@@ -22,10 +23,10 @@ jobs:
         with:
           go-version: 1.19.X
 
-      - name: Tidy
+      - name: Tidy code
         run: go mod tidy
 
-      - name: Format
+      - name: Format code
         run: go fmt ./...
 
       - name: Commit changes
@@ -36,24 +37,22 @@ jobs:
     needs: format
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
           go-version: 1.19.X
 
-      - name: Install dependencies
-        run: go get .
-
-      - name: Vet
+      - name: Vet code
         run: go vet ./...
 
-      - name: Test
+      - name: Test code
         run: go test -race -vet=off ./...
 
-      - name: Verify
+      - name: Verify code
         run: go mod verify
 
-      - name: Build
-        run: go build -v ./...
+      - name: Build code
+        run: go build ./...
