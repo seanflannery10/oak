@@ -93,6 +93,7 @@ func WriteEncrypted(w http.ResponseWriter, cookie http.Cookie, secretKey string)
 	}
 
 	nonce := make([]byte, aesGCM.NonceSize())
+
 	_, err = io.ReadFull(rand.Reader, nonce)
 	if err != nil {
 		return err

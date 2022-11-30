@@ -13,6 +13,7 @@ func Equal[T comparable](t *testing.T, actual, expected T) bool {
 		t.Errorf("not equal:\n"+
 			"  actual: %v\n"+
 			"expected: %v", actual, expected)
+
 		return false
 	}
 
@@ -24,6 +25,7 @@ func NotEqual[T comparable](t *testing.T, actual, expected T) bool {
 
 	if actual == expected {
 		t.Errorf("got for both: %v", actual)
+
 		return false
 	}
 
@@ -37,6 +39,7 @@ func SameType[T comparable](t *testing.T, actual, expected T) bool {
 		t.Errorf("not the same type:\n"+
 			"  actual: %v\n"+
 			"expected: %v", actual, expected)
+
 		return false
 	}
 
@@ -70,7 +73,9 @@ func NilError(t *testing.T, actual error) bool {
 
 	if actual != nil {
 		t.Errorf("%v should be nil", actual)
+
 		return false
 	}
+
 	return true
 }

@@ -194,7 +194,6 @@ func TestMiddleware_RateLimit(t *testing.T) {
 	m.RateLimit(next).ServeHTTP(rr, r)
 
 	assert.Equal(t, rr.Body.String(), "OK")
-	//TODO: Test connection being limited
 }
 
 func TestMiddleware_RecoverPanic(t *testing.T) {

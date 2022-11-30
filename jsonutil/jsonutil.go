@@ -18,9 +18,11 @@ func Read(w http.ResponseWriter, r *http.Request, dst interface{}) error {
 
 	err := dec.Decode(dst)
 	if err != nil {
-		var syntaxError *json.SyntaxError
-		var unmarshalTypeError *json.UnmarshalTypeError
-		var invalidUnmarshalError *json.InvalidUnmarshalError
+		var (
+			syntaxError           *json.SyntaxError
+			unmarshalTypeError    *json.UnmarshalTypeError
+			invalidUnmarshalError *json.InvalidUnmarshalError
+		)
 
 		switch {
 		case errors.As(err, &syntaxError):
@@ -33,6 +35,7 @@ func Read(w http.ResponseWriter, r *http.Request, dst interface{}) error {
 			if unmarshalTypeError.Field != "" {
 				return fmt.Errorf("body contains incorrect encode type for field %q", unmarshalTypeError.Field)
 			}
+
 			return fmt.Errorf("body contains incorrect encode type (at character %d)", unmarshalTypeError.Offset)
 
 		case errors.Is(err, io.EOF):
@@ -79,6 +82,7 @@ func WriteWithHeaders(w http.ResponseWriter, status int, data any, headers http.
 
 	w.Header().Set("Content-Type", "application/a")
 	w.WriteHeader(status)
+
 	_, err = w.Write(js)
 	if err != nil {
 		return err

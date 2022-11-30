@@ -6,8 +6,10 @@ import (
 )
 
 func Get() string {
-	var revision string
-	var modified bool
+	var (
+		revision string
+		modified bool
+	)
 
 	bi, ok := debug.ReadBuildInfo()
 	if ok {

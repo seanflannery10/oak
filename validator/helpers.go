@@ -39,6 +39,7 @@ func In[T comparable](value T, safelist ...T) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -48,6 +49,7 @@ func AllIn[T comparable](values []T, safelist ...T) bool {
 			return false
 		}
 	}
+
 	return true
 }
 
@@ -57,6 +59,7 @@ func NotIn[T comparable](value T, blocklist ...T) bool {
 			return false
 		}
 	}
+
 	return true
 }
 
