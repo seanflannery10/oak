@@ -9,6 +9,15 @@ import (
 	"strings"
 )
 
+var (
+	errBadlyFormed     = errors.New("body contains badly-formed encode")
+	errIncorrectEncode = errors.New("body contains incorrect encode type")
+	errEmptyBody       = errors.New("body must not be empty")
+	errUnknownKey      = errors.New("body contains unknown key")
+	errBodyToLarge     = errors.New("body must not be larger than")
+	errToManyValues    = errors.New("body must only contain a single encode value")
+)
+
 func Read(w http.ResponseWriter, r *http.Request, dst interface{}) error {
 	maxBytes := 1_048_576
 	r.Body = http.MaxBytesReader(w, r.Body, int64(maxBytes))
@@ -26,27 +35,27 @@ func Read(w http.ResponseWriter, r *http.Request, dst interface{}) error {
 
 		switch {
 		case errors.As(err, &syntaxError):
-			return fmt.Errorf("body contains badly-formed encode (at character %d)", syntaxError.Offset)
+			return fmt.Errorf("%w (at character %d)", errBadlyFormed, syntaxError.Offset)
 
 		case errors.Is(err, io.ErrUnexpectedEOF):
-			return errors.New("body contains badly-formed encode")
+			return errBadlyFormed
 
 		case errors.As(err, &unmarshalTypeError):
 			if unmarshalTypeError.Field != "" {
-				return fmt.Errorf("body contains incorrect encode type for field %q", unmarshalTypeError.Field)
+				return fmt.Errorf("%w for field %q", errIncorrectEncode, unmarshalTypeError.Field)
 			}
 
-			return fmt.Errorf("body contains incorrect encode type (at character %d)", unmarshalTypeError.Offset)
+			return fmt.Errorf("%w (at character %d)", errIncorrectEncode, unmarshalTypeError.Offset)
 
 		case errors.Is(err, io.EOF):
-			return errors.New("body must not be empty")
+			return errEmptyBody
 
 		case strings.HasPrefix(err.Error(), "json: unknown field "):
 			fieldName := strings.TrimPrefix(err.Error(), "json: unknown field ")
-			return fmt.Errorf("body contains unknown key %s", fieldName)
+			return fmt.Errorf("%w %s", errUnknownKey, fieldName)
 
 		case err.Error() == "http: json body too large":
-			return fmt.Errorf("body must not be larger than %d bytes", maxBytes)
+			return fmt.Errorf("%w %d bytes", errBodyToLarge, maxBytes)
 
 		case errors.As(err, &invalidUnmarshalError):
 			panic(err)
@@ -58,7 +67,7 @@ func Read(w http.ResponseWriter, r *http.Request, dst interface{}) error {
 
 	err = dec.Decode(&struct{}{})
 	if err != io.EOF {
-		return errors.New("body must only contain a single encode value")
+		return errToManyValues
 	}
 
 	return nil

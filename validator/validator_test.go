@@ -1,8 +1,9 @@
 package validator
 
 import (
-	"github.com/seanflannery10/ossa/assert"
 	"testing"
+
+	"github.com/seanflannery10/ossa/assert"
 )
 
 func TestValidator(t *testing.T) {

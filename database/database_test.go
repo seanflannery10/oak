@@ -1,6 +1,6 @@
 package database
 
-//func TestNew(t *testing.T) {
+// func TestNew(t *testing.T) {
 //	_, err := New(Config{
 //		DSN:                   "postgresql://testing",
 //		MinConns:              30,

@@ -1,11 +1,12 @@
 package server
 
 import (
-	"github.com/seanflannery10/ossa/assert"
 	"os"
 	"syscall"
 	"testing"
 	"time"
+
+	"github.com/seanflannery10/ossa/assert"
 )
 
 func TestNew(t *testing.T) {

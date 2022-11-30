@@ -300,11 +300,11 @@ func TestNilError(t *testing.T) {
 			true,
 		},
 		{
-			errors.New("test"),
+			errors.New("test"), //nolint:goerr113
 			false,
 		},
 		{
-			errors.New(""),
+			errors.New(""), //nolint:goerr113
 			false,
 		},
 	}

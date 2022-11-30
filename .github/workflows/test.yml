@@ -10,33 +10,8 @@ permissions:
   contents: read
 
 jobs:
-  format:
-    name: Format
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ github.head_ref }}
-
-      - name: Set up Go
-        uses: actions/setup-go@v3
-        with:
-          go-version: 1.19.X
-
-      - name: Tidy code
-        run: go mod tidy
-
-      - name: Format code
-        run: go fmt ./...
-
-      - name: Commit changes
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: Apply formatting changes
-  audit:
-    name: Audit
-    needs: format
+  test:
+    name: Test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository

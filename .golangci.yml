@@ -20,6 +20,7 @@ linters:
     - gofumpt
     - goheader
     #    - goimports
+    #    - gomnd
     - goprintffuncname
     - gosec
     - gosimple
@@ -27,13 +28,14 @@ linters:
     - importas
     - ineffassign
     - interfacebloat
-    #    - lll
+    - lll
     - makezero
     - misspell
     - nakedret
     - nilerr
     - noctx
     - nosprintfhostport
+    - prealloc
     - predeclared
     - reassign
     - revive

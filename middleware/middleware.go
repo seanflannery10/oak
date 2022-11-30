@@ -3,6 +3,12 @@ package middleware
 import (
 	"expvar"
 	"fmt"
+	"net/http"
+	"strconv"
+	"strings"
+	"sync"
+	"time"
+
 	"github.com/MicahParks/keyfunc"
 	"github.com/felixge/httpsnoop"
 	"github.com/golang-jwt/jwt/v4"
@@ -11,11 +17,6 @@ import (
 	"github.com/seanflannery10/ossa/httperrors"
 	"github.com/tomasen/realip"
 	"golang.org/x/time/rate"
-	"net/http"
-	"strconv"
-	"strings"
-	"sync"
-	"time"
 )
 
 type (
@@ -233,7 +234,7 @@ func (m *Middleware) RecoverPanic(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if err := recover(); err != nil {
-				httperrors.ServerError(w, r, fmt.Errorf("%s", err))
+				httperrors.ServerError(w, r, fmt.Errorf("%s", err)) //nolint:goerr113
 			}
 		}()
 

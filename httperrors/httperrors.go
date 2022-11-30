@@ -2,10 +2,11 @@ package httperrors
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/seanflannery10/ossa/jsonutil"
 	"github.com/seanflannery10/ossa/logger"
 	"github.com/seanflannery10/ossa/validator"
-	"net/http"
 )
 
 func ErrorMessage(w http.ResponseWriter, r *http.Request, status int, message string) {

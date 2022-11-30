@@ -1,13 +1,17 @@
 package jsonutil
 
 import (
+	"context"
 	"fmt"
-	"github.com/seanflannery10/ossa/assert"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"github.com/seanflannery10/ossa/assert"
 )
+
+var ctx = context.Background()
 
 func TestDecode(t *testing.T) {
 	tests := []struct {
@@ -54,7 +58,7 @@ func TestDecode(t *testing.T) {
 
 			json := strings.NewReader(tt.a)
 
-			r, err := http.NewRequest(http.MethodGet, "/", json)
+			r, err := http.NewRequestWithContext(ctx, http.MethodGet, "/", json)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -74,7 +78,7 @@ func TestDecode(t *testing.T) {
 
 		json := strings.NewReader(`{"int": 123}`)
 
-		r, err := http.NewRequest(http.MethodGet, "/", json)
+		r, err := http.NewRequestWithContext(ctx, http.MethodGet, "/", json)
 		if err != nil {
 			t.Fatal(err)
 		}

@@ -1,24 +1,29 @@
 package handlers
 
 import (
-	"github.com/seanflannery10/ossa/assert"
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/seanflannery10/ossa/assert"
 )
+
+var ctx = context.Background()
 
 func TestHealthcheck(t *testing.T) {
 	rr := httptest.NewRecorder()
 
-	r, err := http.NewRequest(http.MethodGet, "/", nil)
+	r, err := http.NewRequestWithContext(ctx, http.MethodGet, "/", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	Healthcheck(rr, r)
 
-	rs := rr.Result()
+	res := rr.Result()
+	defer res.Body.Close()
 
-	assert.Equal(t, rs.StatusCode, http.StatusOK)
+	assert.Equal(t, res.StatusCode, http.StatusOK)
 	assert.Contains(t, rr.Body.String(), "available")
 }

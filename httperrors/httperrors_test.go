@@ -1,14 +1,18 @@
 package httperrors
 
 import (
+	"context"
 	"errors"
 	"fmt"
-	"github.com/seanflannery10/ossa/assert"
-	"github.com/seanflannery10/ossa/validator"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/seanflannery10/ossa/assert"
+	"github.com/seanflannery10/ossa/validator"
 )
+
+var ctx = context.Background()
 
 func TestErrorMessage(t *testing.T) {
 	tests := []struct {
@@ -18,22 +22,25 @@ func TestErrorMessage(t *testing.T) {
 		{200, "testing status code 200"},
 		{401, "testing status code 401"},
 		{404, "testing status code 404"},
-		{500, "testing status coOde 500"},
+		{500, "testing status code 500"},
 	}
 
 	for _, tt := range tests {
 		t.Run(fmt.Sprintf("%#v", tt.sc), func(t *testing.T) {
 			rr := httptest.NewRecorder()
 
-			r, err := http.NewRequest(http.MethodGet, "/", nil)
+			r, err := http.NewRequestWithContext(ctx, http.MethodGet, "/", nil)
 			if err != nil {
 				t.Fatal(err)
 			}
 
 			ErrorMessage(rr, r, tt.sc, tt.body)
 
+			res := rr.Result()
+			defer res.Body.Close()
+
 			assert.Contains(t, rr.Body.String(), tt.body)
-			assert.Equal(t, rr.Result().StatusCode, tt.sc)
+			assert.Equal(t, res.StatusCode, tt.sc)
 		})
 	}
 }
@@ -41,14 +48,17 @@ func TestErrorMessage(t *testing.T) {
 func TestFailedValidation(t *testing.T) {
 	rr := httptest.NewRecorder()
 
-	r, err := http.NewRequest(http.MethodGet, "/", nil)
+	r, err := http.NewRequestWithContext(ctx, http.MethodGet, "/", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	FailedValidation(rr, r, &validator.Validator{})
 
-	assert.Equal(t, rr.Result().StatusCode, http.StatusUnprocessableEntity)
+	res := rr.Result()
+	defer res.Body.Close()
+
+	assert.Equal(t, res.StatusCode, http.StatusUnprocessableEntity)
 }
 
 func TestStatusCodesWithError(t *testing.T) {
@@ -73,14 +83,17 @@ func TestStatusCodesWithError(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			rr := httptest.NewRecorder()
 
-			r, err := http.NewRequest(http.MethodGet, "/", nil)
+			r, err := http.NewRequestWithContext(ctx, http.MethodGet, "/", nil)
 			if err != nil {
 				t.Fatal(err)
 			}
 
-			tt.f(rr, r, errors.New("test"))
+			tt.f(rr, r, errors.New("test")) //nolint:goerr113
 
-			assert.Equal(t, rr.Result().StatusCode, tt.sc)
+			res := rr.Result()
+			defer res.Body.Close()
+
+			assert.Equal(t, res.StatusCode, tt.sc)
 		})
 	}
 }
@@ -122,14 +135,17 @@ func TestStatusCodesWithoutError(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			rr := httptest.NewRecorder()
 
-			r, err := http.NewRequest(http.MethodGet, "/", nil)
+			r, err := http.NewRequestWithContext(ctx, http.MethodGet, "/", nil)
 			if err != nil {
 				t.Fatal(err)
 			}
 
 			tt.f(rr, r)
 
-			assert.Equal(t, rr.Result().StatusCode, tt.sc)
+			res := rr.Result()
+			defer res.Body.Close()
+
+			assert.Equal(t, res.StatusCode, tt.sc)
 		})
 	}
 }

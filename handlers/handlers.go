@@ -1,10 +1,11 @@
 package handlers
 
 import (
+	"net/http"
+
 	"github.com/seanflannery10/ossa/httperrors"
 	"github.com/seanflannery10/ossa/jsonutil"
 	"github.com/seanflannery10/ossa/version"
-	"net/http"
 )
 
 func Healthcheck(w http.ResponseWriter, r *http.Request) {

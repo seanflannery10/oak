@@ -1,24 +1,29 @@
 package middleware
 
 import (
-	"github.com/seanflannery10/ossa/assert"
-	"github.com/seanflannery10/ossa/auth"
+	"context"
 	"net"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/seanflannery10/ossa/assert"
+	"github.com/seanflannery10/ossa/auth"
 )
 
-var next = http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	_, err := w.Write([]byte("OK"))
-	if err != nil {
-		return
-	}
-}))
+var (
+	ctx  = context.Background()
+	next = http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, err := w.Write([]byte("OK"))
+		if err != nil {
+			return
+		}
+	}))
+)
 
 func TestMiddleware_Chain(t *testing.T) {
 	rr := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/", nil)
 
 	m := New()
 	m.Chain(m.RecoverPanic).Then(next).ServeHTTP(rr, r)
@@ -27,6 +32,7 @@ func TestMiddleware_Chain(t *testing.T) {
 	assert.Equal(t, rr.Code, http.StatusOK)
 }
 
+//nolint:lll
 func TestMiddleware_Authenticate(t *testing.T) {
 	tests := []struct {
 		name   string
@@ -100,7 +106,7 @@ func TestMiddleware_Authenticate(t *testing.T) {
 			m.SetAuthenticateConfig(srv.URL+"/oidc/jwks", tt.apiURL)
 
 			rr := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodGet, "/oidc/jwks", nil)
+			r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/oidc/jwks", nil)
 
 			r.Header.Add("Authorization", tt.header)
 
@@ -116,7 +122,7 @@ func TestMiddleware_Authenticate(t *testing.T) {
 func TestMiddleware_RequireAuthenticatedUser(t *testing.T) {
 	t.Run("Bad Auth", func(t *testing.T) {
 		rr := httptest.NewRecorder()
-		r, _ := http.NewRequest(http.MethodGet, "/", nil)
+		r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/", nil)
 
 		m := New()
 
@@ -128,7 +134,7 @@ func TestMiddleware_RequireAuthenticatedUser(t *testing.T) {
 
 	t.Run("Good Auth", func(t *testing.T) {
 		rr := httptest.NewRecorder()
-		r, _ := http.NewRequest(http.MethodGet, "/", nil)
+		r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/", nil)
 		r = auth.SetUser(r, "Test")
 
 		m := New()
@@ -143,7 +149,7 @@ func TestMiddleware_RequireAuthenticatedUser(t *testing.T) {
 func TestMiddleware_CORS(t *testing.T) {
 	t.Run("MethodGet", func(t *testing.T) {
 		rr := httptest.NewRecorder()
-		r, _ := http.NewRequest(http.MethodGet, "/", nil)
+		r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/", nil)
 
 		r.Header.Set("Origin", "127.0.0.1")
 
@@ -158,7 +164,7 @@ func TestMiddleware_CORS(t *testing.T) {
 
 	t.Run("MethodOptions", func(t *testing.T) {
 		rr := httptest.NewRecorder()
-		r, _ := http.NewRequest(http.MethodOptions, "/", nil)
+		r, _ := http.NewRequestWithContext(ctx, http.MethodOptions, "/", nil)
 
 		r.Header.Set("Origin", "127.0.0.1")
 		r.Header.Set("Access-Control-Request-Method", "Test")
@@ -175,7 +181,7 @@ func TestMiddleware_CORS(t *testing.T) {
 
 func TestMiddleware_Metrics(t *testing.T) {
 	rr := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/", nil)
 
 	m := New()
 
@@ -186,7 +192,7 @@ func TestMiddleware_Metrics(t *testing.T) {
 
 func TestMiddleware_RateLimit(t *testing.T) {
 	rr := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/", nil)
 
 	m := New()
 	m.SetRateLimitConfig(true, 2, 4)
@@ -199,7 +205,7 @@ func TestMiddleware_RateLimit(t *testing.T) {
 func TestMiddleware_RecoverPanic(t *testing.T) {
 	t.Run("No Panic", func(t *testing.T) {
 		rr := httptest.NewRecorder()
-		r, _ := http.NewRequest(http.MethodGet, "/", nil)
+		r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/", nil)
 
 		m := New()
 
@@ -210,7 +216,7 @@ func TestMiddleware_RecoverPanic(t *testing.T) {
 
 	t.Run("Panic", func(t *testing.T) {
 		rr := httptest.NewRecorder()
-		r, _ := http.NewRequest(http.MethodGet, "/", nil)
+		r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/", nil)
 
 		homeHandler := http.HandlerFunc(func(http.ResponseWriter, *http.Request) { panic("test error") })
 

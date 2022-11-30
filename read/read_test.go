@@ -1,15 +1,19 @@
 package read
 
 import (
+	"context"
 	"fmt"
-	"github.com/seanflannery10/ossa/assert"
-	"github.com/seanflannery10/ossa/validator"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/seanflannery10/ossa/assert"
+	"github.com/seanflannery10/ossa/validator"
 )
+
+var ctx = context.Background()
 
 func TestCSV(t *testing.T) {
 	tests := []struct {
@@ -32,7 +36,7 @@ func TestCSV(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(fmt.Sprintf("%#v", tt.csv), func(t *testing.T) {
-			r, err := http.NewRequest(http.MethodGet, "/", nil)
+			r, err := http.NewRequestWithContext(ctx, http.MethodGet, "/", nil)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -73,7 +77,7 @@ func TestInt(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(fmt.Sprintf("%#v", tt.int), func(t *testing.T) {
-			r, err := http.NewRequest(http.MethodGet, "/", nil)
+			r, err := http.NewRequestWithContext(ctx, http.MethodGet, "/", nil)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -106,7 +110,7 @@ func TestString(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(fmt.Sprintf("%#v", tt.string), func(t *testing.T) {
-			r, err := http.NewRequest(http.MethodGet, "/", nil)
+			r, err := http.NewRequestWithContext(ctx, http.MethodGet, "/", nil)
 			if err != nil {
 				t.Fatal(err)
 			}

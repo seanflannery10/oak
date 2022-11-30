@@ -3,11 +3,12 @@ package logger
 import (
 	"bytes"
 	"errors"
-	"github.com/seanflannery10/ossa/assert"
 	"os"
 	"os/exec"
 	"regexp"
 	"testing"
+
+	"github.com/seanflannery10/ossa/assert"
 )
 
 func TestLogger(t *testing.T) {
@@ -37,7 +38,7 @@ func TestLogger(t *testing.T) {
 	l.Warning("warning")
 	assert.Contains(t, b.String(), "warning")
 
-	l.Error(errors.New("error"), map[string]string{"error": "error"})
+	l.Error(errors.New("error"), map[string]string{"error": "error"}) //nolint:goerr113
 	assert.Contains(t, b.String(), "error")
 }
 
@@ -48,10 +49,10 @@ func TestLogger_Fatal(t *testing.T) {
 	l.SetOutput(b)
 
 	if os.Getenv("TEST") == "1" {
-		l.Fatal(errors.New("fatal"), map[string]string{"fatal": "fatal"})
+		l.Fatal(errors.New("fatal"), map[string]string{"fatal": "fatal"}) //nolint:goerr113
 	}
 
-	cmd := exec.Command(os.Args[0], "-test.run=TestLogger")
+	cmd := exec.Command(os.Args[0], "-test.run=TestLogger") //nolint:gosec
 	cmd.Env = append(os.Environ(), "TEST=1")
 
 	err := cmd.Run()
@@ -104,7 +105,7 @@ func TestGlobalLogger(t *testing.T) {
 	Warning("warning")
 	assert.Contains(t, b.String(), "warning")
 
-	Error(errors.New("error"), map[string]string{"error": "error"})
+	Error(errors.New("error"), map[string]string{"error": "error"}) //nolint:goerr113
 	assert.Contains(t, b.String(), "error")
 
 	assert.Equal(t, GetLevel(), LevelDebug)
@@ -116,10 +117,10 @@ func TestGlobalLogger_Fatal(t *testing.T) {
 	SetOutput(b)
 
 	if os.Getenv("TEST") == "1" {
-		Fatal(errors.New("fatal"), map[string]string{"fatal": "fatal"})
+		Fatal(errors.New("fatal"), map[string]string{"fatal": "fatal"}) //nolint:goerr113
 	}
 
-	cmd := exec.Command(os.Args[0], "-test.run=TestLogger")
+	cmd := exec.Command(os.Args[0], "-test.run=TestLogger") // nolint:gosec
 	cmd.Env = append(os.Environ(), "TEST=1")
 
 	err := cmd.Run()

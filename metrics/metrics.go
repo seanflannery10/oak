@@ -2,9 +2,10 @@ package metrics
 
 import (
 	"expvar"
-	"github.com/seanflannery10/ossa/version"
 	"runtime"
 	"time"
+
+	"github.com/seanflannery10/ossa/version"
 )
 
 func Common() {

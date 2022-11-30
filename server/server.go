@@ -4,13 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/seanflannery10/ossa/logger"
 	"net/http"
 	"os"
 	"os/signal"
 	"sync"
 	"syscall"
 	"time"
+
+	"github.com/seanflannery10/ossa/logger"
 )
 
 type Server struct {
@@ -80,7 +81,7 @@ func (s *Server) Background(fn func()) {
 
 		defer func() {
 			if err := recover(); err != nil {
-				logger.Error(fmt.Errorf("%s", err), nil)
+				logger.Error(fmt.Errorf("%s", err), nil) //nolint:goerr113
 			}
 		}()
 

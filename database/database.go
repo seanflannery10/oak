@@ -2,9 +2,10 @@ package database
 
 import (
 	"context"
+	"time"
+
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/seanflannery10/ossa/logger"
-	"time"
 )
 
 type Config struct {
