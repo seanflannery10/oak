@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/seanflannery10/ossa/logger"
 )
 
@@ -50,10 +50,11 @@ func New(cfg Config) (*pgxpool.Pool, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	pool, err := pgxpool.ConnectConfig(ctx, config)
+	pool, err := pgxpool.NewWithConfig(ctx, config)
 	if err != nil {
 		return nil, err
 	}
+	defer pool.Close()
 
 	logger.Info("database connection pool established")
 
