@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"net/http"
 
+	"golang.org/x/exp/slog"
+
 	"github.com/seanflannery10/ossa/jsonutil"
-	"github.com/seanflannery10/ossa/logger"
 	"github.com/seanflannery10/ossa/validator"
 )
 
@@ -16,10 +17,14 @@ func ErrorMessage(w http.ResponseWriter, r *http.Request, status int, message st
 func ErrorMessageWithHeaders(w http.ResponseWriter, r *http.Request, status int, message string, headers http.Header) {
 	err := jsonutil.WriteWithHeaders(w, status, map[string]string{"error": message}, headers)
 	if err != nil {
-		logger.Error(err, map[string]string{
-			"request_method": r.Method,
-			"request_url":    r.URL.String(),
-		})
+		slog.Error(
+			"json write error",
+			err,
+			"request_method",
+			r.Method,
+			"request_url",
+			r.URL.String(),
+		)
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 }
@@ -27,16 +32,20 @@ func ErrorMessageWithHeaders(w http.ResponseWriter, r *http.Request, status int,
 func FailedValidation(w http.ResponseWriter, r *http.Request, v *validator.Validator) {
 	err := jsonutil.Write(w, http.StatusUnprocessableEntity, map[string]map[string]string{"error": v.Errors})
 	if err != nil {
-		logger.Error(err, map[string]string{
-			"request_method": r.Method,
-			"request_url":    r.URL.String(),
-		})
+		slog.Error(
+			"json write error",
+			err,
+			"request_method",
+			r.Method,
+			"request_url",
+			r.URL.String(),
+		)
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 }
 
 func ServerError(w http.ResponseWriter, r *http.Request, err error) {
-	logger.Error(err, nil)
+	slog.Error("server error", err)
 
 	message := "the server encountered a problem and could not process your json"
 	ErrorMessage(w, r, http.StatusInternalServerError, message)

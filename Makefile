@@ -1,7 +1,6 @@
 ## audit: run quality control checks
 .PHONY: audit
 audit:
-	go mod vendor
 	go mod tidy -v
 	golangci-lint run --fix
 	go test -race -vet=off ./...

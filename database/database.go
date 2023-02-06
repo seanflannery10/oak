@@ -4,8 +4,9 @@ import (
 	"context"
 	"time"
 
+	"golang.org/x/exp/slog"
+
 	"github.com/jackc/pgx/v4/pgxpool"
-	"github.com/seanflannery10/ossa/logger"
 )
 
 type Config struct {
@@ -55,7 +56,7 @@ func New(cfg Config) (*pgxpool.Pool, error) {
 		return nil, err
 	}
 
-	logger.Info("database connection pool established")
+	slog.Info("database connection pool established")
 
 	return pool, nil
 }

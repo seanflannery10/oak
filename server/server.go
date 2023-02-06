@@ -11,7 +11,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/seanflannery10/ossa/logger"
+	"golang.org/x/exp/slog"
 )
 
 type Server struct {
@@ -24,7 +24,7 @@ func New(addr string, handler http.Handler) *Server {
 		&http.Server{
 			Addr:         addr,
 			Handler:      handler,
-			IdleTimeout:  time.Minute,
+			IdleTimeout:  1 * time.Minute,
 			ReadTimeout:  10 * time.Second,
 			WriteTimeout: 30 * time.Second,
 		},
@@ -40,7 +40,7 @@ func (s *Server) Run() error {
 		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 		sig := <-quit
 
-		logger.Info("caught signal %s", sig.String())
+		slog.Info("caught signal", "signal", sig.String())
 
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
@@ -50,13 +50,13 @@ func (s *Server) Run() error {
 			shutdownError <- err
 		}
 
-		logger.Info("completing background tasks on %s", s.Addr)
+		slog.Info("completing background tasks", "address", s.Addr)
 
 		s.wg.Wait()
 		shutdownError <- nil
 	}()
 
-	logger.Info("starting server on %s", s.Addr)
+	slog.Info("starting server", "address", s.Addr)
 
 	err := s.ListenAndServe()
 	if !errors.Is(err, http.ErrServerClosed) {
@@ -68,7 +68,7 @@ func (s *Server) Run() error {
 		return err
 	}
 
-	logger.Info("server stopped on %s", s.Addr)
+	slog.Info("server stopped", "address", s.Addr)
 
 	return nil
 }
@@ -81,7 +81,7 @@ func (s *Server) Background(fn func()) {
 
 		defer func() {
 			if err := recover(); err != nil {
-				logger.Error(fmt.Errorf("%s", err), nil) //nolint:goerr113
+				slog.Error("background recovery error", fmt.Errorf("%s", err)) //nolint:goerr113
 			}
 		}()
 
