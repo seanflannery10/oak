@@ -2,20 +2,30 @@ package read
 
 import (
 	"errors"
-	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 
-	"github.com/julienschmidt/httprouter"
 	"github.com/seanflannery10/ossa/validator"
 )
 
 var errInvalidIDparameter = errors.New("invalid id parameter")
 
-func IDParam(r *http.Request) (int64, error) {
-	params := httprouter.ParamsFromContext(r.Context())
+//func IDParam(r *http.Request) (int64, error) {
+//	params := httprouter.ParamsFromContext(r.Context())
+//
+//	id, err := strconv.ParseInt(params.ByName("id"), 10, 64)
+//	if err != nil || id < 1 {
+//		return 0, errInvalidIDparameter
+//	}
+//
+//	return id, nil
+//}
 
-	id, err := strconv.ParseInt(params.ByName("id"), 10, 64)
+func IDParam(qs url.Values) (int64, error) {
+	s := qs.Get("id")
+
+	id, err := strconv.ParseInt(s, 10, 64)
 	if err != nil || id < 1 {
 		return 0, errInvalidIDparameter
 	}
@@ -23,8 +33,8 @@ func IDParam(r *http.Request) (int64, error) {
 	return id, nil
 }
 
-func String(r *http.Request, key string, defaultValue string) string {
-	s := r.URL.Query().Get(key)
+func String(qs url.Values, key string, defaultValue string) string {
+	s := qs.Get(key)
 
 	if s == "" {
 		return defaultValue
@@ -33,8 +43,8 @@ func String(r *http.Request, key string, defaultValue string) string {
 	return s
 }
 
-func CSV(r *http.Request, key string, defaultValue []string) []string {
-	csv := r.URL.Query().Get(key)
+func CSV(qs url.Values, key string, defaultValue []string) []string {
+	csv := qs.Get(key)
 
 	if csv == "" {
 		return defaultValue
@@ -43,8 +53,8 @@ func CSV(r *http.Request, key string, defaultValue []string) []string {
 	return strings.Split(csv, ",")
 }
 
-func Int(r *http.Request, key string, defaultValue int, v *validator.Validator) int {
-	s := r.URL.Query().Get(key)
+func Int(qs url.Values, key string, defaultValue int, v *validator.Validator) int {
+	s := qs.Get(key)
 
 	if s == "" {
 		return defaultValue
