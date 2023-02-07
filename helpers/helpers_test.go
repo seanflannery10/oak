@@ -1,14 +1,17 @@
-package jsonutil
+package helpers
 
 import (
 	"context"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
+	"strconv"
 	"strings"
 	"testing"
 
 	"github.com/seanflannery10/ossa/assert"
+	"github.com/seanflannery10/ossa/validator"
 )
 
 var ctx = context.Background()
@@ -68,7 +71,7 @@ func TestDecode(t *testing.T) {
 				Int    int    `a:"int"`
 			}
 
-			err = Read(rr, r, &testData)
+			err = ReadJSON(rr, r, &testData)
 			assert.Contains(t, err.Error(), tt.e)
 		})
 	}
@@ -88,7 +91,7 @@ func TestDecode(t *testing.T) {
 			Int    int    `a:"int"`
 		}
 
-		err = Read(rr, r, &testData)
+		err = ReadJSON(rr, r, &testData)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -118,7 +121,7 @@ func TestEncode(t *testing.T) {
 		t.Run(fmt.Sprintf("%#v", tt.s), func(t *testing.T) {
 			rr := httptest.NewRecorder()
 
-			err := Write(rr, tt.c, tt.s)
+			err := WriteJSON(rr, tt.c, tt.s)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -163,7 +166,7 @@ func TestEncodeWithHeaders(t *testing.T) {
 			headers := make(http.Header)
 			headers.Set("X-Request-Id", tt.h)
 
-			err := WriteWithHeaders(rr, tt.c, tt.s, headers)
+			err := WriteJSONWithHeaders(rr, tt.c, tt.s, headers)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -175,6 +178,120 @@ func TestEncodeWithHeaders(t *testing.T) {
 			assert.Equal(t, rr.Header().Get("Content-Type"), "application/a")
 			assert.Equal(t, rr.Header().Get("X-Request-Id"), tt.h)
 			assert.Equal(t, rr.Code, tt.c)
+		})
+	}
+}
+
+func TestCSV(t *testing.T) {
+	tests := []struct {
+		key string
+		csv string
+	}{
+		{
+			"csv",
+			"csv,foo,bar",
+		},
+		{
+			"csv",
+			"csv,foo,bar,test",
+		},
+		{
+			"string",
+			"string",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(fmt.Sprintf("%#v", tt.csv), func(t *testing.T) {
+			r, err := http.NewRequestWithContext(ctx, http.MethodGet, "/", nil)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			split := strings.Split(tt.csv, ",")
+
+			r.URL.RawQuery = url.Values{
+				tt.key: {tt.csv},
+			}.Encode()
+
+			qs := r.URL.Query()
+			res := ReadCSVParam(qs, tt.key, nil)
+
+			assert.Equal(t, len(res), len(split))
+			assert.Equal(t, res[0], split[0])
+			assert.Equal(t, res[len(res)-1], split[len(split)-1])
+		})
+	}
+}
+
+func TestInt(t *testing.T) {
+	tests := []struct {
+		key string
+		int int
+	}{
+		{
+			"test",
+			42,
+		},
+		{
+			"test",
+			0,
+		},
+		{
+			"test",
+			-20,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(fmt.Sprintf("%#v", tt.int), func(t *testing.T) {
+			r, err := http.NewRequestWithContext(ctx, http.MethodGet, "/", nil)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			r.URL.RawQuery = url.Values{
+				tt.key: {strconv.Itoa(tt.int)},
+			}.Encode()
+
+			qs := r.URL.Query()
+			res := ReadIntParam(qs, tt.key, 1, &validator.Validator{})
+
+			assert.Equal(t, res, tt.int)
+		})
+	}
+}
+
+func TestString(t *testing.T) {
+	tests := []struct {
+		key    string
+		string string
+	}{
+		{
+			"test",
+			"42",
+		},
+		{
+			"test",
+			"test",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(fmt.Sprintf("%#v", tt.string), func(t *testing.T) {
+			r, err := http.NewRequestWithContext(ctx, http.MethodGet, "/", nil)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			r.URL.RawQuery = url.Values{
+				tt.key: {tt.string},
+			}.Encode()
+
+			qs := r.URL.Query()
+			res := ReadStringParam(qs, tt.key, "")
+
+			assert.Equal(t, res, tt.string)
 		})
 	}
 }

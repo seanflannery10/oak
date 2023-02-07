@@ -4,9 +4,8 @@ import (
 	"context"
 	"time"
 
-	"golang.org/x/exp/slog"
-
 	"github.com/jackc/pgx/v4/pgxpool"
+	"golang.org/x/exp/slog"
 )
 
 type Config struct {

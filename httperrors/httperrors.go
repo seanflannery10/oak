@@ -4,10 +4,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"golang.org/x/exp/slog"
-
-	"github.com/seanflannery10/ossa/jsonutil"
+	"github.com/seanflannery10/ossa/helpers"
 	"github.com/seanflannery10/ossa/validator"
+	"golang.org/x/exp/slog"
 )
 
 func ErrorMessage(w http.ResponseWriter, r *http.Request, status int, message string) {
@@ -15,7 +14,7 @@ func ErrorMessage(w http.ResponseWriter, r *http.Request, status int, message st
 }
 
 func ErrorMessageWithHeaders(w http.ResponseWriter, r *http.Request, status int, message string, headers http.Header) {
-	err := jsonutil.WriteWithHeaders(w, status, map[string]string{"error": message}, headers)
+	err := helpers.WriteJSONWithHeaders(w, status, map[string]string{"error": message}, headers)
 	if err != nil {
 		slog.Error(
 			"json write error",
@@ -30,7 +29,7 @@ func ErrorMessageWithHeaders(w http.ResponseWriter, r *http.Request, status int,
 }
 
 func FailedValidation(w http.ResponseWriter, r *http.Request, v *validator.Validator) {
-	err := jsonutil.Write(w, http.StatusUnprocessableEntity, map[string]map[string]string{"error": v.Errors})
+	err := helpers.WriteJSON(w, http.StatusUnprocessableEntity, map[string]map[string]string{"error": v.Errors})
 	if err != nil {
 		slog.Error(
 			"json write error",
