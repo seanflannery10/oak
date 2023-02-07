@@ -7,7 +7,6 @@ require (
 	github.com/felixge/httpsnoop v1.0.3
 	github.com/golang-jwt/jwt/v4 v4.4.3
 	github.com/jackc/pgx/v4 v4.17.2
-	github.com/julienschmidt/httprouter v1.3.0
 	github.com/justinas/alice v1.2.0
 	github.com/tomasen/realip v0.0.0-20180522021738-f0c99a92ddce
 	golang.org/x/exp v0.0.0-20230203172020-98cc5a0785f9

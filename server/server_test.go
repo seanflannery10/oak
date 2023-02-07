@@ -10,16 +10,16 @@ import (
 )
 
 func TestNew(t *testing.T) {
-	srv := New("test", nil)
+	srv := New(12345, nil)
 	srv.Background(func() {})
 
-	assert.Equal(t, srv.Addr, "test")
+	assert.Equal(t, srv.Addr, ":12345")
 	assert.SameType(t, srv, &Server{})
 }
 
 func TestServer_Run(t *testing.T) {
 	t.Run("SIGINT", func(t *testing.T) {
-		srv := New("localhost:4444", nil)
+		srv := New(4444, nil)
 
 		go func() {
 			time.Sleep(250 * time.Millisecond)
@@ -42,7 +42,7 @@ func TestServer_Run(t *testing.T) {
 	})
 
 	t.Run("SIGTERM", func(t *testing.T) {
-		srv := New("localhost:4444", nil)
+		srv := New(4444, nil)
 
 		go func() {
 			time.Sleep(250 * time.Millisecond)

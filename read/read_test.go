@@ -47,7 +47,8 @@ func TestCSV(t *testing.T) {
 				tt.key: {tt.csv},
 			}.Encode()
 
-			res := CSV(r, tt.key, nil)
+			qs := r.URL.Query()
+			res := CSV(qs, tt.key, nil)
 
 			assert.Equal(t, len(res), len(split))
 			assert.Equal(t, res[0], split[0])
@@ -86,7 +87,8 @@ func TestInt(t *testing.T) {
 				tt.key: {strconv.Itoa(tt.int)},
 			}.Encode()
 
-			res := Int(r, tt.key, 1, &validator.Validator{})
+			qs := r.URL.Query()
+			res := Int(qs, tt.key, 1, &validator.Validator{})
 
 			assert.Equal(t, res, tt.int)
 		})
@@ -119,7 +121,8 @@ func TestString(t *testing.T) {
 				tt.key: {tt.string},
 			}.Encode()
 
-			res := String(r, tt.key, "")
+			qs := r.URL.Query()
+			res := String(qs, tt.key, "")
 
 			assert.Equal(t, res, tt.string)
 		})

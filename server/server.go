@@ -19,11 +19,11 @@ type Server struct {
 	wg sync.WaitGroup
 }
 
-func New(addr string, handler http.Handler) *Server {
+func New(port int, routes http.Handler) *Server {
 	return &Server{
 		&http.Server{
-			Addr:         addr,
-			Handler:      handler,
+			Addr:         fmt.Sprintf(":%d", port),
+			Handler:      routes,
 			IdleTimeout:  1 * time.Minute,
 			ReadTimeout:  10 * time.Second,
 			WriteTimeout: 30 * time.Second,
