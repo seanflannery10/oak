@@ -13,12 +13,13 @@ linters:
     - errchkjson
     - errname
     - exportloopref
+    - gci
     - gocritic
     - gocyclo
     - goerr113
     - gofumpt
     - goheader
-    #    - goimports
+    - goimports
     #    - gomnd
     - goprintffuncname
     - gosec
