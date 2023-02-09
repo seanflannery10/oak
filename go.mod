@@ -3,15 +3,10 @@ module github.com/seanflannery10/ossa
 go 1.19
 
 require (
-	github.com/MicahParks/keyfunc v1.9.0
 	github.com/felixge/httpsnoop v1.0.3
 	github.com/go-chi/chi/v5 v5.0.8
-	github.com/golang-jwt/jwt/v4 v4.4.3
 	github.com/jackc/pgx/v4 v4.17.2
-	github.com/justinas/alice v1.2.0
-	github.com/tomasen/realip v0.0.0-20180522021738-f0c99a92ddce
 	golang.org/x/exp v0.0.0-20230203172020-98cc5a0785f9
-	golang.org/x/time v0.3.0
 )
 
 require (
